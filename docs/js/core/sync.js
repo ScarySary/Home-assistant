@@ -53,7 +53,7 @@ function preparePayload(data) {
 }
 
 async function callSupabaseRpc(sync, name, body) {
-  const baseUrl = sync.supabaseUrl.trim().replace(/\/+$/, "");
+  const baseUrl = normalizeSupabaseUrl(sync.supabaseUrl);
   const response = await fetch(`${baseUrl}/rest/v1/rpc/${name}`, {
     method: "POST",
     headers: syncHeaders(sync.anonKey.trim()),
@@ -89,9 +89,20 @@ function syncHeaders(key) {
 
 function validateSyncSettings(sync) {
   if (!syncConfigured({ sync })) {
-    throw new Error("Add the Supabase URL, anon key, household key and sync password first.");
+    throw new Error("Add the Supabase URL, publishable key, household key and sync password first.");
   }
-  if (!/^https:\/\/.+\.supabase\.co$/i.test(sync.supabaseUrl.trim())) {
-    throw new Error("Use the HTTPS Supabase project URL from your Supabase settings.");
+  normalizeSupabaseUrl(sync.supabaseUrl);
+}
+
+function normalizeSupabaseUrl(value) {
+  let url = value.trim();
+  if (!/^https?:\/\//i.test(url)) {
+    url = `https://${url}`;
   }
+  url = url.replace(/\/rest\/v1.*$/i, "").replace(/\/+$/, "");
+
+  if (!/^https:\/\/[a-z0-9-]+\.supabase\.co$/i.test(url)) {
+    throw new Error("Use the Supabase Project URL only, like https://your-project.supabase.co. Remove anything after .co.");
+  }
+  return url;
 }

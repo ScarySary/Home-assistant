@@ -1,5 +1,11 @@
 # Household Assistant Changelog
 
+## 1.0.0-alpha.4 - 2026-06-26
+
+- Made Supabase Project URL entry more forgiving.
+- The app now accepts copied formats like `your-project.supabase.co`, `https://your-project.supabase.co/`, or `https://your-project.supabase.co/rest/v1`.
+- Improved the sync setup error message for incorrect Supabase URLs.
+
 ## 1.0.0-alpha.3 - 2026-06-26
 
 - Updated Supabase sync wording to match the newer **publishable key** dashboard label.
