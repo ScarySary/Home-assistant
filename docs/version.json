@@ -1,6 +1,6 @@
 {
   "app": "Household Assistant",
-  "version": "1.0.0-alpha.8",
+  "version": "1.0.0-alpha.9",
   "channel": "alpha",
   "buildDate": "2026-06-26",
   "minimumDataVersion": 1,
@@ -16,6 +16,7 @@
     "Added fuller edit/delete controls for debts, repayment history and savings goals.",
     "Fixed Android number keypad closing while editing debt and savings amounts.",
     "Reduced scrolling in Debt Tracker and Savings Goals with sticky add bars and compact expandable cards.",
-    "Refreshed the visual design with a cleaner banking-app inspired style."
+    "Refreshed the visual design with a cleaner banking-app inspired style.",
+    "Added a top hamburger app menu and collapsible finance summary sections."
   ]
 }

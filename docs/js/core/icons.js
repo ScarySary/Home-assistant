@@ -7,6 +7,7 @@ const paths = {
   tasks: '<path d="m9 11 2 2 4-5"/><path d="M4 6h2"/><path d="M4 12h2"/><path d="M4 18h2"/><path d="M8 6h12"/><path d="M8 12h12"/><path d="M8 18h12"/>',
   food: '<path d="M4 10h16"/><path d="M6 10l1.2 9h9.6L18 10"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/><path d="M9 14h6"/>',
   search: '<path d="M11 19a8 8 0 1 0 0-16 8 8 0 0 0 0 16Z"/><path d="m21 21-4.35-4.35"/>',
+  menu: '<path d="M4 6h16"/><path d="M4 12h16"/><path d="M4 18h16"/>',
   plus: '<path d="M12 5v14"/><path d="M5 12h14"/>',
   calendar: '<path d="M7 3v4"/><path d="M17 3v4"/><path d="M4 8h16"/><path d="M6 5h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2Z"/>',
   chores: '<path d="m9 11 2 2 4-5"/><path d="M5 5h14v14H5z"/>',

@@ -14,10 +14,16 @@ export function renderSavings(app) {
         el("p", { text: "Track goal balances alongside debt so the whole household picture stays visible." })
       ])
     ]),
-    el("section", { className: "metric-grid", "aria-label": "Savings summary" }, [
-      metric("Saved", currency.format(summary.totalSaved)),
-      metric("Target", currency.format(summary.totalTarget)),
-      metric("Still planned", currency.format(Math.max(0, summary.totalTarget - summary.totalSaved)))
+    el("details", { className: "collapsible-table" }, [
+      el("summary", {}, [
+        el("span", { text: "Savings summary" }),
+        el("strong", { text: currency.format(summary.totalSaved) })
+      ]),
+      el("section", { className: "metric-grid", "aria-label": "Savings summary" }, [
+        metric("Saved", currency.format(summary.totalSaved)),
+        metric("Target", currency.format(summary.totalTarget)),
+        metric("Still planned", currency.format(Math.max(0, summary.totalTarget - summary.totalSaved)))
+      ])
     ]),
     el("section", { className: "finance-action-bar", "aria-label": "Savings actions" }, [
       el("div", {}, [

@@ -495,17 +495,110 @@ body[data-theme="dark"] .fab-button {
 .topbar {
   position: sticky;
   top: 0;
-  z-index: 5;
+  z-index: 12;
   justify-content: space-between;
   min-height: 76px;
   padding: 0.9rem clamp(1rem, 3vw, 2rem);
   background: color-mix(in srgb, var(--surface) 92%, transparent);
-  border-bottom: 2px solid var(--border);
+  border-bottom: 1px solid var(--border);
   backdrop-filter: blur(14px);
+}
+
+.topbar-left {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-width: 0;
 }
 
 .topbar strong {
   font-size: 1.2rem;
+}
+
+.app-menu {
+  position: relative;
+  z-index: 30;
+}
+
+.app-menu summary {
+  list-style: none;
+}
+
+.app-menu summary::-webkit-details-marker {
+  display: none;
+}
+
+.menu-button {
+  display: grid;
+  place-items: center;
+  width: var(--tap);
+  min-height: var(--tap);
+  padding: 0;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--text);
+  box-shadow: none;
+}
+
+.app-menu-panel {
+  position: absolute;
+  top: calc(100% + 0.65rem);
+  left: 0;
+  width: min(360px, calc(100vw - 1.4rem));
+  max-height: min(72vh, 680px);
+  overflow: auto;
+  display: grid;
+  gap: 0.85rem;
+  padding: 0.85rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  box-shadow: var(--shadow-strong);
+}
+
+.app-menu-head,
+.app-menu-foot {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.app-menu-head span,
+.app-menu-foot span {
+  color: var(--muted);
+  font-weight: 800;
+}
+
+.app-menu-list {
+  display: grid;
+  gap: 0.45rem;
+}
+
+.app-menu-item {
+  width: 100%;
+  justify-content: space-between;
+  display: flex;
+  align-items: center;
+  border-color: var(--border);
+  background: var(--surface);
+  color: var(--text);
+  box-shadow: none;
+  text-align: left;
+}
+
+.app-menu-item.active {
+  border-color: var(--accent);
+  background: var(--accent);
+  color: #ffffff;
+}
+
+.app-menu-item small {
+  color: var(--muted);
+}
+
+.app-menu-item.active small {
+  color: #ffffff;
 }
 
 .content {
@@ -648,6 +741,34 @@ body[data-theme="dark"] .fab-button {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 1rem;
+}
+
+.collapsible-table {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+}
+
+.collapsible-table summary {
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.8rem 1rem;
+  color: var(--text);
+}
+
+.collapsible-table summary span {
+  color: var(--muted);
+  font-weight: 900;
+}
+
+.collapsible-table summary strong {
+  color: var(--text);
+}
+
+.collapsible-table .metric-grid {
+  padding: 0 1rem 1rem;
 }
 
 .dashboard-summary {
@@ -1612,6 +1733,15 @@ summary {
     flex-direction: row;
     align-items: center;
     justify-content: space-between;
+  }
+
+  .app-menu-panel {
+    position: fixed;
+    top: 4.6rem;
+    left: 0.85rem;
+    right: 0.85rem;
+    width: auto;
+    max-height: calc(100vh - 8rem);
   }
 
   .topbar .secondary {

@@ -90,9 +90,12 @@ function renderShell(data) {
     ]),
     el("div", { className: "main-column" }, [
       el("header", { className: "topbar" }, [
-        el("div", {}, [
-          el("p", { className: "eyebrow", text: data.household.country }),
-          el("strong", { text: data.household.name })
+        el("div", { className: "topbar-left" }, [
+          appMenu(data),
+          el("div", {}, [
+            el("p", { className: "eyebrow", text: data.household.country }),
+            el("strong", { text: data.household.name })
+          ])
         ]),
         el("button", { type: "button", className: "secondary", onClick: toggleTheme, text: data.settings.theme === "dark" ? "Light mode" : "Dark mode" })
       ]),
@@ -100,6 +103,41 @@ function renderShell(data) {
     ]),
     bottomNavigation(),
     floatingActions()
+  ]); 
+}
+
+function appMenu(data) {
+  return el("details", { className: "app-menu" }, [
+    el("summary", { className: "menu-button", "aria-label": "Open app menu" }, [icon("menu")]),
+    el("div", { className: "app-menu-panel" }, [
+      el("div", { className: "app-menu-head" }, [
+        el("div", { className: "brand-mark", "aria-hidden": "true", text: "HA" }),
+        el("div", {}, [
+          el("strong", { text: "Household Assistant" }),
+          el("span", { text: `v${APP_VERSION}` })
+        ])
+      ]),
+      el("nav", { className: "app-menu-list", "aria-label": "All app areas" }, moduleCatalog.map((module) => menuButton(module))),
+      el("div", { className: "app-menu-foot" }, [
+        el("span", { text: `${app.user.name} - ${app.user.role}` }),
+        el("button", { type: "button", className: "secondary compact", onClick: () => { clearSession(); render(); }, text: "Sign out" })
+      ])
+    ])
+  ]);
+}
+
+function menuButton(module) {
+  const active = app.route === module.id;
+  const enabled = routes[module.id];
+  return el("button", {
+    type: "button",
+    className: `app-menu-item ${active ? "active" : ""}`,
+    disabled: enabled ? null : "disabled",
+    "aria-current": active ? "page" : null,
+    onClick: enabled ? () => app.navigate(module.id) : null
+  }, [
+    el("span", { text: module.name }),
+    el("small", { text: module.status === "active" ? "Ready" : "Planned" })
   ]);
 }
 

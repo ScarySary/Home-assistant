@@ -1,4 +1,4 @@
-const APP_CACHE = "household-assistant-shell-v19";
+const APP_CACHE = "household-assistant-shell-v20";
 const APP_FILES = [
   "./",
   "./index.html",

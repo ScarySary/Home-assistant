@@ -1,5 +1,12 @@
 # Household Assistant Changelog
 
+## 1.0.0-alpha.9 - 2026-06-26
+
+- Added a top hamburger menu for quick access to app areas.
+- Kept the bottom navigation for one-handed Android use.
+- Made debt and savings summary sections collapsible to reduce scrolling.
+- Improved banking-app style navigation patterns.
+
 ## 1.0.0-alpha.8 - 2026-06-26
 
 - Refreshed the app with a cleaner banking-app inspired visual style.

@@ -8,10 +8,16 @@ export function renderDebts(app) {
 
   return el("section", { className: "view-stack", "aria-labelledby": "debtsTitle" }, [
     header("Debt Tracker", "Manual repayments, instant balances and estimated debt-free dates."),
-    el("section", { className: "metric-grid", "aria-label": "Debt summary" }, [
-      metric("Remaining", currency.format(summary.totalDebt)),
-      metric("Paid off", currency.format(summary.totalPaid)),
-      metric("Debt-free", summary.debtFreeDate)
+    el("details", { className: "collapsible-table" }, [
+      el("summary", {}, [
+        el("span", { text: "Debt summary" }),
+        el("strong", { text: currency.format(summary.totalDebt) })
+      ]),
+      el("section", { className: "metric-grid", "aria-label": "Debt summary" }, [
+        metric("Remaining", currency.format(summary.totalDebt)),
+        metric("Paid off", currency.format(summary.totalPaid)),
+        metric("Debt-free", summary.debtFreeDate)
+      ])
     ]),
     el("section", { className: "finance-action-bar", "aria-label": "Debt actions" }, [
       el("div", {}, [
