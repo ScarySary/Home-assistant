@@ -1,5 +1,12 @@
 # Household Assistant Changelog
 
+## 1.0.0-alpha.8 - 2026-06-26
+
+- Refreshed the app with a cleaner banking-app inspired visual style.
+- Replaced the teal theme with crisper white, charcoal, red and green finance accents.
+- Updated cards, buttons, navigation, progress bars and finance list styling.
+- Improved dark mode contrast for the new visual style.
+
 ## 1.0.0-alpha.7 - 2026-06-26
 
 - Reduced scrolling in Debt Tracker and Savings Goals.

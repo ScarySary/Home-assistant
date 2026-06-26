@@ -1,24 +1,25 @@
 :root {
   color-scheme: light;
-  --bg: #f6f4ef;
+  --bg: #f5f5f5;
   --surface: #ffffff;
-  --surface-soft: #eef4f4;
+  --surface-soft: #f2f3f5;
   --surface-raised: #ffffff;
-  --surface-tonal: #e2f0ef;
-  --text: #172426;
-  --muted: #556365;
-  --border: #d4ddda;
-  --accent: #15656b;
-  --accent-strong: #0d474c;
-  --accent-soft: #d7eeee;
-  --ink-soft: #243538;
-  --gold: #9a6d10;
-  --danger: #b3261e;
-  --focus: #d89500;
-  --shadow: 0 10px 30px rgba(35, 43, 43, 0.12);
-  --shadow-strong: 0 18px 48px rgba(35, 43, 43, 0.18);
-  --radius: 22px;
-  --radius-sm: 16px;
+  --surface-tonal: #fff1f2;
+  --text: #151515;
+  --muted: #5f6368;
+  --border: #e0e2e5;
+  --accent: #c8102e;
+  --accent-strong: #9f0b23;
+  --accent-soft: #fde7eb;
+  --ink-soft: #25282c;
+  --success: #16833a;
+  --gold: #a86500;
+  --danger: #c8102e;
+  --focus: #0b57d0;
+  --shadow: 0 8px 24px rgba(15, 18, 24, 0.08);
+  --shadow-strong: 0 18px 44px rgba(15, 18, 24, 0.18);
+  --radius: 20px;
+  --radius-sm: 14px;
   --tap: 48px;
   --font-size: 18px;
   font-family: Inter, Roboto, "Segoe UI", Arial, Helvetica, sans-serif;
@@ -26,20 +27,21 @@
 
 body[data-theme="dark"] {
   color-scheme: dark;
-  --bg: #101718;
-  --surface: #182223;
-  --surface-soft: #223032;
-  --surface-raised: #1e2a2c;
-  --surface-tonal: #203b3f;
-  --text: #f5fbfb;
-  --muted: #c2d0d0;
-  --border: #3f5658;
-  --accent: #78d5d9;
-  --accent-strong: #a7eff1;
-  --accent-soft: #17393d;
+  --bg: #101113;
+  --surface: #181a1f;
+  --surface-soft: #22252b;
+  --surface-raised: #202329;
+  --surface-tonal: #321017;
+  --text: #f7f7f8;
+  --muted: #c3c6cb;
+  --border: #343942;
+  --accent: #ff5a70;
+  --accent-strong: #ff9aa8;
+  --accent-soft: #3a151c;
   --ink-soft: #f5fbfb;
+  --success: #65d987;
   --gold: #f2c95d;
-  --danger: #ffb4ab;
+  --danger: #ff5a70;
   --focus: #ffd166;
   --shadow: 0 10px 30px rgba(0, 0, 0, 0.32);
   --shadow-strong: 0 18px 48px rgba(0, 0, 0, 0.45);
@@ -138,9 +140,9 @@ button,
   background: var(--accent);
   color: #ffffff;
   padding: 0.72rem 1rem;
-  font-weight: 800;
+  font-weight: 900;
   cursor: pointer;
-  box-shadow: 0 5px 14px rgba(21, 101, 107, 0.16);
+  box-shadow: 0 6px 18px color-mix(in srgb, var(--accent) 24%, transparent);
 }
 
 button::after,
@@ -162,7 +164,7 @@ button:active::after,
 
 body[data-theme="dark"] button,
 body[data-theme="dark"] .file-button {
-  color: #071112;
+  color: #111114;
 }
 
 button:hover,
@@ -389,7 +391,7 @@ body[data-theme="dark"] .fab-button {
   top: 0;
   height: 100vh;
   overflow: auto;
-  background: #153c43;
+  background: #151515;
   color: #ffffff;
   padding: 1rem;
   display: grid;
@@ -420,7 +422,7 @@ body[data-theme="dark"] .fab-button {
 
 .brand-block span {
   display: block;
-  color: #cfe7e8;
+  color: #d8dade;
   font-weight: 700;
   margin-top: 0.2rem;
 }
@@ -431,9 +433,9 @@ body[data-theme="dark"] .fab-button {
   flex: 0 0 auto;
   width: 48px;
   height: 48px;
-  border-radius: var(--radius-sm);
-  background: #d7eeee;
-  color: #12363b;
+  border-radius: 16px;
+  background: var(--accent);
+  color: #ffffff;
   font-weight: 900;
 }
 
@@ -457,22 +459,22 @@ body[data-theme="dark"] .fab-button {
   text-align: left;
   background: transparent;
   color: #ffffff;
-  border-color: rgba(255, 255, 255, 0.18);
+  border-color: rgba(255, 255, 255, 0.14);
   box-shadow: none;
 }
 
 .nav-button small {
-  color: #cfe7e8;
+  color: #d8dade;
 }
 
 .nav-button.active {
-  background: #d7eeee;
-  border-color: #d7eeee;
-  color: #12363b;
+  background: #ffffff;
+  border-color: #ffffff;
+  color: #151515;
 }
 
 .nav-button.active small {
-  color: #315b60;
+  color: #5f6368;
 }
 
 .user-chip {
@@ -578,7 +580,7 @@ body[data-theme="dark"] .fab-button {
 .module-card,
 .tracker-card {
   background: var(--surface);
-  border: 2px solid var(--border);
+  border: 1px solid var(--border);
   border-radius: var(--radius);
   box-shadow: var(--shadow);
 }
@@ -590,7 +592,7 @@ body[data-theme="dark"] .fab-button {
   align-items: end;
   padding: clamp(1.2rem, 4vw, 2rem);
   background:
-    linear-gradient(135deg, var(--surface) 0%, var(--surface-soft) 100%);
+    linear-gradient(135deg, #ffffff 0%, var(--surface-soft) 100%);
 }
 
 .dashboard-hero {
@@ -600,8 +602,8 @@ body[data-theme="dark"] .fab-button {
   align-items: end;
   padding: clamp(1.2rem, 4vw, 2rem);
   background:
-    radial-gradient(circle at top right, var(--accent-soft) 0%, transparent 42%),
-    linear-gradient(135deg, var(--surface) 0%, var(--surface-soft) 100%);
+    linear-gradient(90deg, var(--accent) 0 8px, transparent 8px),
+    linear-gradient(135deg, #ffffff 0%, #f7f7f8 100%);
 }
 
 .today-card {
@@ -865,9 +867,9 @@ body[data-theme="dark"] .fab-button {
   place-items: center;
   width: 48px;
   height: 48px;
-  border-radius: 18px;
-  background: var(--surface);
-  border: 2px solid var(--border);
+  border-radius: 16px;
+  background: var(--accent-soft);
+  border: 0;
   color: var(--accent-strong);
   font-size: 0.82rem;
   font-weight: 900;
@@ -878,6 +880,7 @@ body[data-theme="dark"] .fab-button {
   padding: 1rem;
   display: grid;
   gap: 0.4rem;
+  border-left: 5px solid var(--accent);
 }
 
 .snapshot-card {
@@ -1244,10 +1247,10 @@ body[data-theme="dark"] .icon-control {
   justify-content: space-between;
   gap: 0.75rem;
   padding: 0.75rem;
-  border: 2px solid var(--border);
+  border: 1px solid var(--border);
   border-radius: var(--radius);
   background: color-mix(in srgb, var(--surface) 94%, transparent);
-  box-shadow: var(--shadow);
+  box-shadow: 0 8px 24px rgba(15, 18, 24, 0.1);
   backdrop-filter: blur(14px);
 }
 
@@ -1269,7 +1272,8 @@ body[data-theme="dark"] .icon-control {
 .tracker-card {
   display: grid;
   gap: 0.75rem;
-  box-shadow: none;
+  box-shadow: 0 2px 10px rgba(15, 18, 24, 0.05);
+  border-left: 5px solid var(--accent);
 }
 
 .compact-card-topline {
@@ -1304,6 +1308,7 @@ body[data-theme="dark"] .icon-control {
   background: transparent;
   border-color: var(--danger);
   color: var(--danger);
+  border-radius: 999px;
 }
 
 .danger-icon:hover {
@@ -1366,16 +1371,16 @@ body[data-theme="dark"] .secondary {
 
 .progress-track {
   width: 100%;
-  height: 18px;
+  height: 12px;
   overflow: hidden;
-  border: 2px solid var(--border);
+  border: 0;
   border-radius: 999px;
   background: var(--surface-soft);
 }
 
 .progress-fill {
   height: 100%;
-  background: var(--accent);
+  background: var(--success);
   transition: width 160ms ease;
 }
 
@@ -1385,9 +1390,9 @@ body[data-theme="dark"] .secondary {
 }
 
 .card-details {
-  border: 2px solid var(--border);
+  border: 1px solid var(--border);
   border-radius: var(--radius-sm);
-  background: var(--surface-soft);
+  background: var(--surface);
   padding: 0.75rem;
 }
 
@@ -1549,9 +1554,9 @@ summary {
     grid-template-columns: repeat(5, minmax(0, 1fr));
     gap: 0.25rem;
     padding: 0.5rem 0.5rem calc(0.5rem + env(safe-area-inset-bottom));
-    background: color-mix(in srgb, var(--surface) 94%, transparent);
+    background: color-mix(in srgb, var(--surface) 96%, transparent);
     border-top: 1px solid var(--border);
-    box-shadow: 0 -12px 30px rgba(15, 25, 25, 0.14);
+    box-shadow: 0 -10px 26px rgba(15, 18, 24, 0.12);
     backdrop-filter: blur(16px);
   }
 
@@ -1562,16 +1567,24 @@ summary {
     gap: 0.15rem;
     padding: 0.35rem 0.25rem;
     border-color: transparent;
-    border-radius: 18px;
+    border-radius: 16px;
     background: transparent;
     color: var(--muted);
     font-size: 0.74rem;
   }
 
   .bottom-nav-button.active {
-    border-color: var(--accent);
-    background: var(--accent-soft);
+    border-color: transparent;
+    background: var(--accent);
     color: var(--accent-strong);
+  }
+
+  body:not([data-theme="dark"]) .bottom-nav-button.active {
+    color: #ffffff;
+  }
+
+  body[data-theme="dark"] .bottom-nav-button.active {
+    color: #111114;
   }
 
   .bottom-nav-icon {
@@ -1580,7 +1593,7 @@ summary {
     width: 30px;
     height: 30px;
     border-radius: 999px;
-    background: var(--surface-soft);
+    background: transparent;
     font-weight: 900;
   }
 
@@ -1590,7 +1603,7 @@ summary {
   }
 
   .bottom-nav-button.active .bottom-nav-icon {
-    background: var(--surface);
+    background: transparent;
   }
 
   .topbar {
