@@ -1,5 +1,10 @@
 # Household Assistant Changelog
 
+## 1.0.0-alpha.3 - 2026-06-26
+
+- Updated Supabase sync wording to match the newer **publishable key** dashboard label.
+- Added support for `sb_publishable_...` keys in manual sync requests.
+
 ## 1.0.0-alpha.2 - 2026-06-26
 
 - Added optional Supabase manual sync foundation for sharing one household across phones.

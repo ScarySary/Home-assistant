@@ -56,11 +56,7 @@ async function callSupabaseRpc(sync, name, body) {
   const baseUrl = sync.supabaseUrl.trim().replace(/\/+$/, "");
   const response = await fetch(`${baseUrl}/rest/v1/rpc/${name}`, {
     method: "POST",
-    headers: {
-      apikey: sync.anonKey.trim(),
-      Authorization: `Bearer ${sync.anonKey.trim()}`,
-      "Content-Type": "application/json"
-    },
+    headers: syncHeaders(sync.anonKey.trim()),
     body: JSON.stringify(body)
   });
 
@@ -78,6 +74,17 @@ async function callSupabaseRpc(sync, name, body) {
     throw new Error(data?.message || data?.error || "Supabase sync request failed.");
   }
   return data;
+}
+
+function syncHeaders(key) {
+  const headers = {
+    apikey: key,
+    "Content-Type": "application/json"
+  };
+  if (!key.startsWith("sb_publishable_")) {
+    headers.Authorization = `Bearer ${key}`;
+  }
+  return headers;
 }
 
 function validateSyncSettings(sync) {

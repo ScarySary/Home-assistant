@@ -1,6 +1,6 @@
 {
   "app": "Household Assistant",
-  "version": "1.0.0-alpha.2",
+  "version": "1.0.0-alpha.3",
   "channel": "alpha",
   "buildDate": "2026-06-26",
   "minimumDataVersion": 1,
@@ -10,6 +10,7 @@
     "Manual update checks and safe update status in Settings.",
     "Notification permission flow and local test reminder support.",
     "Household data remains separate from app files and survives normal app updates.",
-    "Optional Supabase manual sync foundation for sharing one household across phones."
+    "Optional Supabase manual sync foundation for sharing one household across phones.",
+    "Supports Supabase publishable keys that start with sb_publishable_."
   ]
 }

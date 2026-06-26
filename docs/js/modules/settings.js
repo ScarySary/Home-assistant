@@ -30,7 +30,7 @@ export function renderSettings(app) {
 function syncPanel(app, data) {
   const sync = data.settings.sync;
   const urlInput = el("input", { type: "url", value: sync.supabaseUrl, placeholder: "https://your-project.supabase.co", autocomplete: "off" });
-  const anonInput = el("input", { type: "password", value: sync.anonKey, placeholder: "Supabase anon public key", autocomplete: "off" });
+  const anonInput = el("input", { type: "password", value: sync.anonKey, placeholder: "Supabase publishable or anon key", autocomplete: "off" });
   const householdInput = el("input", { type: "text", value: sync.householdKey || data.household.id, autocomplete: "off" });
   const secretInput = el("input", { type: "password", value: sync.syncSecret, placeholder: "Shared sync password", autocomplete: "new-password" });
   const status = el("p", { className: "inline-status", role: "status", text: sync.lastStatus || "Sync is not configured yet." });
@@ -57,7 +57,7 @@ function syncPanel(app, data) {
     el("p", { text: "GitHub Pages can install the app, but shared phone data needs a small Supabase database. Sync is manual in this alpha so you stay in control of which phone pushes or pulls." }),
     el("div", { className: "field-grid" }, [
       inputField("Supabase URL", urlInput),
-      inputField("Supabase anon key", anonInput),
+      inputField("Supabase publishable key", anonInput),
       inputField("Household key", householdInput),
       inputField("Shared sync password", secretInput)
     ]),

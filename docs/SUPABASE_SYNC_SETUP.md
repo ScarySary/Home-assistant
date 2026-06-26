@@ -9,7 +9,7 @@ GitHub Pages hosts the app. Supabase stores the shared household data.
 - A Supabase account
 - One Supabase project
 - Your project URL
-- Your anon public key
+- Your publishable key, or the legacy anon public key
 - One shared household key
 - One shared sync password
 
@@ -134,7 +134,7 @@ grant execute on function public.pull_household(text, text) to anon;
 1. In Supabase, go to **Project Settings**
 2. Go to **API**
 3. Copy the **Project URL**
-4. Copy the **anon public** key
+4. Copy the **publishable** key. It usually starts with `sb_publishable_`.
 
 ## Step 4: Connect The First Phone
 
@@ -142,7 +142,7 @@ grant execute on function public.pull_household(text, text) to anon;
 2. Go to **Settings**
 3. Find **Sync between phones**
 4. Paste the Supabase URL
-5. Paste the anon key
+5. Paste the publishable key
 6. Enter a household key, for example `sara-household-2026`
 7. Enter a shared sync password with at least 10 characters
 8. Tap **Save sync settings**
@@ -153,7 +153,7 @@ grant execute on function public.pull_household(text, text) to anon;
 1. Open the installed app on his phone
 2. Go to **Settings**
 3. Enter the same Supabase URL
-4. Enter the same anon key
+4. Enter the same publishable key
 5. Enter the same household key
 6. Enter the same sync password
 7. Tap **Save sync settings**
@@ -172,5 +172,5 @@ Automatic live sync can be added later once this manual version is tested and st
 
 - Export a backup before pulling a cloud copy onto a phone with important data.
 - Use a strong sync password.
-- Do not post your anon key and household key publicly together with your sync password.
+- Do not post your publishable key and household key publicly together with your sync password.
 - GitHub Pages still only hosts app files. Household data sync happens through Supabase.
