@@ -1360,6 +1360,21 @@ summary {
   padding: 0.65rem;
 }
 
+.history-edit-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 0.65rem;
+  flex: 1 1 auto;
+}
+
+.history-edit-grid .field {
+  gap: 0.3rem;
+}
+
+.action-field {
+  align-content: end;
+}
+
 .user-row div {
   display: grid;
   gap: 0.2rem;
@@ -1737,5 +1752,10 @@ summary {
 
   .mini-row strong {
     text-align: left;
+  }
+
+  .history-row,
+  .history-edit-grid {
+    grid-template-columns: 1fr;
   }
 }

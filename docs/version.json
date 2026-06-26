@@ -1,6 +1,6 @@
 {
   "app": "Household Assistant",
-  "version": "1.0.0-alpha.4",
+  "version": "1.0.0-alpha.6",
   "channel": "alpha",
   "buildDate": "2026-06-26",
   "minimumDataVersion": 1,
@@ -12,6 +12,8 @@
     "Household data remains separate from app files and survives normal app updates.",
     "Optional Supabase manual sync foundation for sharing one household across phones.",
     "Supports Supabase publishable keys that start with sb_publishable_.",
-    "Supabase Project URL field now accepts common copied URL formats and cleans them safely."
+    "Supabase Project URL field now accepts common copied URL formats and cleans them safely.",
+    "Added fuller edit/delete controls for debts, repayment history and savings goals.",
+    "Fixed Android number keypad closing while editing debt and savings amounts."
   ]
 }

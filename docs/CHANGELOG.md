@@ -1,5 +1,18 @@
 # Household Assistant Changelog
 
+## 1.0.0-alpha.6 - 2026-06-26
+
+- Fixed Android number keypad closing after each digit while editing debt and savings amounts.
+- Edit fields now save when the field is finished instead of rerendering after every keypress.
+
+## 1.0.0-alpha.5 - 2026-06-26
+
+- Added confirmation prompts before deleting debts, repayments and savings goals.
+- Added editable repayment history for dates and amounts.
+- Repayment amount edits now adjust the debt balance.
+- Added a quick **Add to goal** action for savings goals.
+- Kept direct editing for debt names, balances, original amounts, goal names, targets and saved totals.
+
 ## 1.0.0-alpha.4 - 2026-06-26
 
 - Made Supabase Project URL entry more forgiving.

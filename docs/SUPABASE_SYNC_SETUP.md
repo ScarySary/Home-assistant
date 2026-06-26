@@ -32,7 +32,7 @@ The sync password is sent to Supabase over HTTPS and checked by a database funct
 5. Click **Run**
 
 ```sql
-create extension if not exists pgcrypto;
+create extension if not exists pgcrypto with schema extensions;
 
 create table if not exists public.household_sync (
   household_key text primary key,
@@ -73,11 +73,11 @@ begin
   where household_key = p_household_key;
 
   if existing.household_key is null then
-    new_hash := crypt(p_sync_secret, gen_salt('bf'));
+    new_hash := extensions.crypt(p_sync_secret, extensions.gen_salt('bf'));
     insert into public.household_sync (household_key, sync_secret_hash, payload, updated_at)
     values (p_household_key, new_hash, p_payload, now());
   else
-    if crypt(p_sync_secret, existing.sync_secret_hash) <> existing.sync_secret_hash then
+    if extensions.crypt(p_sync_secret, existing.sync_secret_hash) <> existing.sync_secret_hash then
       raise exception 'Sync password did not match this household.';
     end if;
 
@@ -114,7 +114,7 @@ begin
     raise exception 'No household found for that key.';
   end if;
 
-  if crypt(p_sync_secret, existing.sync_secret_hash) <> existing.sync_secret_hash then
+  if extensions.crypt(p_sync_secret, existing.sync_secret_hash) <> existing.sync_secret_hash then
     raise exception 'Sync password did not match this household.';
   end if;
 

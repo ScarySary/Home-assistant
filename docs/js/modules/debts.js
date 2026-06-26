@@ -72,8 +72,24 @@ function history(app, debt) {
     .sort((a, b) => b.date.localeCompare(a.date))
     .map((repayment) =>
       el("div", { className: "history-row" }, [
-        el("span", { text: `${formatDate(repayment.date)} - ${currency.format(repayment.amount)}` }),
-        el("button", { type: "button", className: "secondary compact", onClick: () => removeRepayment(app, debt.id, repayment.id), text: "Remove" })
+        el("div", { className: "history-edit-grid" }, [
+          inputField("Date", el("input", {
+            type: "date",
+            value: repayment.date,
+            "aria-label": `Edit repayment date ${formatDate(repayment.date)}`,
+            onChange: (event) => updateRepayment(app, debt.id, repayment.id, (item) => (item.date = event.target.value || todayIso()))
+          })),
+          inputField("Amount", el("input", {
+            type: "number",
+            min: "0",
+            step: "0.01",
+            inputmode: "decimal",
+            value: repayment.amount,
+            "aria-label": `Edit repayment amount ${currency.format(repayment.amount)}`,
+            onChange: (event) => setRepaymentAmount(app, debt.id, repayment.id, toMoney(event.target.value))
+          }))
+        ]),
+        el("button", { type: "button", className: "secondary compact", onClick: () => removeRepayment(app, debt.id, repayment.id), text: "Delete" })
       ])
     );
 
@@ -97,6 +113,8 @@ function updateDebt(app, id, mutator) {
 }
 
 function removeDebt(app, id) {
+  const debt = app.store.get().modules.debts.items.find((item) => item.id === id);
+  if (!confirm(`Delete ${debt?.name || "this debt"} and its repayment history?`)) return;
   app.store.update((data) => {
     data.modules.debts.items = data.modules.debts.items.filter((debt) => debt.id !== id);
   });
@@ -110,11 +128,29 @@ function addRepayment(app, id, date, amount) {
 }
 
 function removeRepayment(app, debtId, repaymentId) {
+  if (!confirm("Delete this repayment and add the amount back to the debt balance?")) return;
   updateDebt(app, debtId, (debt) => {
     const repayment = debt.repayments.find((item) => item.id === repaymentId);
     if (!repayment) return;
     debt.balance = toMoney(debt.balance + repayment.amount);
     debt.repayments = debt.repayments.filter((item) => item.id !== repaymentId);
+  });
+}
+
+function updateRepayment(app, debtId, repaymentId, mutator) {
+  updateDebt(app, debtId, (debt) => {
+    const repayment = debt.repayments.find((item) => item.id === repaymentId);
+    if (repayment) mutator(repayment);
+  });
+}
+
+function setRepaymentAmount(app, debtId, repaymentId, nextAmount) {
+  updateDebt(app, debtId, (debt) => {
+    const repayment = debt.repayments.find((item) => item.id === repaymentId);
+    if (!repayment) return;
+    const difference = toMoney(nextAmount - repayment.amount);
+    repayment.amount = nextAmount;
+    debt.balance = Math.max(0, toMoney(debt.balance - difference));
   });
 }
 
@@ -136,10 +172,17 @@ function moneyInput(value, onInput) {
     step: "0.01",
     inputmode: "decimal",
     value,
-    onInput: (event) => onInput(toMoney(event.target.value))
+    onChange: (event) => onInput(toMoney(event.target.value)),
+    onBlur: (event) => onInput(toMoney(event.target.value))
   });
 }
 
 function editableText(value, label, onInput) {
-  return el("input", { className: "name-input", "aria-label": label, value, onInput: (event) => onInput(event.target.value) });
+  return el("input", {
+    className: "name-input",
+    "aria-label": label,
+    value,
+    onChange: (event) => onInput(event.target.value),
+    onBlur: (event) => onInput(event.target.value)
+  });
 }
