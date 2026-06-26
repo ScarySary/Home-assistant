@@ -1,0 +1,14 @@
+{
+  "app": "Household Assistant",
+  "version": "1.0.0-alpha.1",
+  "channel": "alpha",
+  "buildDate": "2026-06-26",
+  "minimumDataVersion": 1,
+  "safeUpdate": true,
+  "notes": [
+    "Installable PWA alpha for Android and Windows/browser testing.",
+    "Manual update checks and safe update status in Settings.",
+    "Notification permission flow and local test reminder support.",
+    "Household data remains separate from app files and survives normal app updates."
+  ]
+}
