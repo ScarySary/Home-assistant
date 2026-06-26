@@ -2,6 +2,7 @@ import { APP_BUILD_DATE, APP_RELEASE_CHANNEL, APP_VERSION, roles } from "../core
 import { canManageUsers, createPasswordRecord, normaliseRole } from "../core/auth.js";
 import { el, inputField } from "../core/dom.js";
 import { notificationSupport, requestReminderPermission, showTestNotification } from "../core/notifications.js";
+import { pullHouseholdFromCloud, pushHouseholdToCloud, syncConfigured } from "../core/sync.js";
 import { applyWaitingUpdate, checkForUpdates } from "../core/updates.js";
 
 export function renderSettings(app) {
@@ -18,10 +19,107 @@ export function renderSettings(app) {
       ])
     ]),
     preferences(app, data),
+    syncPanel(app, data),
     appStatusPanel(app, data),
     notificationPanel(app, data),
     accountPanel(app, data, user),
     backupPanel(data, fileInput)
+  ]);
+}
+
+function syncPanel(app, data) {
+  const sync = data.settings.sync;
+  const urlInput = el("input", { type: "url", value: sync.supabaseUrl, placeholder: "https://your-project.supabase.co", autocomplete: "off" });
+  const anonInput = el("input", { type: "password", value: sync.anonKey, placeholder: "Supabase anon public key", autocomplete: "off" });
+  const householdInput = el("input", { type: "text", value: sync.householdKey || data.household.id, autocomplete: "off" });
+  const secretInput = el("input", { type: "password", value: sync.syncSecret, placeholder: "Shared sync password", autocomplete: "new-password" });
+  const status = el("p", { className: "inline-status", role: "status", text: sync.lastStatus || "Sync is not configured yet." });
+
+  const saveSettings = () => {
+    app.store.update((next) => {
+      next.settings.sync.enabled = true;
+      next.settings.sync.supabaseUrl = urlInput.value.trim();
+      next.settings.sync.anonKey = anonInput.value.trim();
+      next.settings.sync.householdKey = householdInput.value.trim();
+      next.settings.sync.syncSecret = secretInput.value;
+      next.settings.sync.lastStatus = syncConfigured(next.settings) ? "Sync settings saved. Push this phone first, then pull on the other phone." : "Sync settings saved, but some details are still missing.";
+    });
+  };
+
+  return el("section", { className: "panel" }, [
+    el("div", { className: "card-topline" }, [
+      el("div", {}, [
+        el("p", { className: "eyebrow", text: "Household sync alpha" }),
+        el("h2", { text: "Sync between phones" })
+      ]),
+      el("span", { className: "status-pill", text: syncConfigured(data.settings) ? "Ready" : "Setup needed" })
+    ]),
+    el("p", { text: "GitHub Pages can install the app, but shared phone data needs a small Supabase database. Sync is manual in this alpha so you stay in control of which phone pushes or pulls." }),
+    el("div", { className: "field-grid" }, [
+      inputField("Supabase URL", urlInput),
+      inputField("Supabase anon key", anonInput),
+      inputField("Household key", householdInput),
+      inputField("Shared sync password", secretInput)
+    ]),
+    el("div", { className: "action-row" }, [
+      el("button", {
+        type: "button",
+        onClick: () => {
+          saveSettings();
+          status.textContent = "Sync settings saved.";
+        },
+        text: "Save sync settings"
+      }),
+      el("button", {
+        type: "button",
+        className: "secondary",
+        onClick: async () => {
+          saveSettings();
+          status.textContent = "Pushing this phone to the cloud...";
+          try {
+            const result = await pushHouseholdToCloud(app.store.get());
+            app.store.update((next) => {
+              next.settings.sync.lastPushedAt = result.updatedAt;
+              next.settings.sync.lastStatus = result.message;
+            });
+            status.textContent = result.message;
+          } catch (error) {
+            app.store.update((next) => (next.settings.sync.lastStatus = error.message));
+            status.textContent = error.message;
+          }
+        },
+        text: "Push this phone"
+      }),
+      el("button", {
+        type: "button",
+        className: "secondary",
+        onClick: async () => {
+          saveSettings();
+          status.textContent = "Pulling the cloud copy...";
+          try {
+            const currentSync = app.store.get().settings.sync;
+            const cloudData = await pullHouseholdFromCloud(app.store.get().settings);
+            app.store.replace({
+              ...cloudData,
+              settings: {
+                ...cloudData.settings,
+                sync: {
+                  ...currentSync,
+                  lastPulledAt: new Date().toISOString(),
+                  lastStatus: "Cloud copy imported onto this phone."
+                }
+              }
+            });
+          } catch (error) {
+            app.store.update((next) => (next.settings.sync.lastStatus = error.message));
+            status.textContent = error.message;
+          }
+        },
+        text: "Pull cloud copy"
+      })
+    ]),
+    status,
+    el("small", { text: "Before pulling onto a phone with important data, export a backup first." })
   ]);
 }
 

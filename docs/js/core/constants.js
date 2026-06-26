@@ -1,4 +1,4 @@
-export const APP_VERSION = "1.0.0-alpha.1";
+export const APP_VERSION = "1.0.0-alpha.2";
 export const APP_BUILD_DATE = "2026-06-26";
 export const APP_RELEASE_CHANNEL = "alpha";
 export const DATA_KEY = "householdAssistant.userData.v1";

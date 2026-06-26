@@ -1,5 +1,13 @@
 # Household Assistant Changelog
 
+## 1.0.0-alpha.2 - 2026-06-26
+
+- Added optional Supabase manual sync foundation for sharing one household across phones.
+- Added Settings controls for Supabase URL, anon key, household key and shared sync password.
+- Added manual **Push this phone** and **Pull cloud copy** sync actions.
+- Added `SUPABASE_SYNC_SETUP.md` with the database setup SQL and phone setup instructions.
+- Kept sync optional so the app still works offline without Supabase.
+
 ## 1.0.0-alpha.1 - 2026-06-26
 
 - Prepared the app as an installable PWA alpha for Android and Windows/browser testing.

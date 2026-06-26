@@ -91,6 +91,17 @@ export function createDefaultData() {
         calendar: true,
         shopping: true,
         lastStatus: "Notifications are not configured yet."
+      },
+      sync: {
+        enabled: false,
+        provider: "Supabase",
+        supabaseUrl: "",
+        anonKey: "",
+        householdKey: "",
+        syncSecret: "",
+        lastPulledAt: null,
+        lastPushedAt: null,
+        lastStatus: "Sync is not configured yet."
       }
     },
     users: [],
@@ -123,7 +134,8 @@ function normalizeSettings(baseSettings, rawSettings) {
     ...rawSettings,
     dashboard: normalizeDashboardSettings(rawSettings.dashboard, baseSettings.dashboard),
     updates: { ...baseSettings.updates, ...(rawSettings.updates || {}) },
-    notifications: { ...baseSettings.notifications, ...(rawSettings.notifications || {}) }
+    notifications: { ...baseSettings.notifications, ...(rawSettings.notifications || {}) },
+    sync: { ...baseSettings.sync, ...(rawSettings.sync || {}) }
   };
 }
 

@@ -12,6 +12,7 @@ Current alpha features:
 - Dark mode and accessibility settings
 - Manual update checks
 - Notification permission flow and local test reminders
+- Optional Supabase manual sync foundation
 
 This project is currently packaged as a Progressive Web App. It can be hosted on GitHub Pages and installed from Chrome on Android.
 
@@ -29,3 +30,5 @@ Always export a backup before:
 ## Deployment
 
 Follow [GITHUB_PAGES_DEPLOY.md](GITHUB_PAGES_DEPLOY.md) to publish this app to GitHub Pages and install it on Android.
+
+Follow [SUPABASE_SYNC_SETUP.md](SUPABASE_SYNC_SETUP.md) to set up shared household sync between phones.

@@ -1,7 +1,34 @@
-﻿# Household Assistant GitHub Upload
+# Household Assistant
 
-This folder is prepared so you do not need to hunt for HTML, JS, CSS or icon files.
+Household Assistant is a private, installable household management app for Android phones, Windows and modern browsers.
 
-Upload this README.md file and the docs folder to your GitHub repository. Then turn on GitHub Pages using branch main and folder /docs.
+Current alpha features:
 
-Open START_HERE.md for the simple step-by-step guide.
+- Home dashboard
+- Debt tracker
+- Savings goals
+- Household users and roles
+- Backup, export and import
+- Dark mode and accessibility settings
+- Manual update checks
+- Notification permission flow and local test reminders
+- Optional Supabase manual sync foundation
+
+This project is currently packaged as a Progressive Web App. It can be hosted on GitHub Pages and installed from Chrome on Android.
+
+## Important Data Note
+
+Household data is stored on each device in browser or installed app storage under `householdAssistant.userData.v1`. App updates replace the app files only. They do not intentionally erase household data.
+
+Always export a backup before:
+
+- Installing on another device
+- Clearing browser data
+- Changing the GitHub Pages address
+- Testing a new alpha build
+
+## Deployment
+
+Follow [GITHUB_PAGES_DEPLOY.md](GITHUB_PAGES_DEPLOY.md) to publish this app to GitHub Pages and install it on Android.
+
+Follow [SUPABASE_SYNC_SETUP.md](SUPABASE_SYNC_SETUP.md) to set up shared household sync between phones.
