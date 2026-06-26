@@ -47,6 +47,10 @@ body[data-theme="dark"] {
   --shadow-strong: 0 18px 48px rgba(0, 0, 0, 0.45);
 }
 
+body[data-scale="small"] {
+  --font-size: 16px;
+}
+
 body[data-scale="large"] {
   --font-size: 20px;
 }
@@ -316,10 +320,6 @@ small {
   min-height: 100vh;
   display: grid;
   grid-template-columns: 292px minmax(0, 1fr);
-}
-
-.bottom-nav {
-  display: none;
 }
 
 .fab-menu {
@@ -1352,6 +1352,54 @@ body[data-theme="dark"] .icon-control {
   font-size: 1rem;
 }
 
+.settings-section {
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  box-shadow: var(--shadow);
+}
+
+.settings-section > summary {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 0.35rem 0.75rem;
+  padding: 0.9rem 1rem;
+  color: var(--text);
+}
+
+.settings-section > summary::after {
+  content: "›";
+  grid-row: 1 / span 2;
+  grid-column: 2;
+  align-self: center;
+  color: var(--muted);
+  font-size: 1.6rem;
+  transform: rotate(90deg);
+}
+
+.settings-section[open] > summary::after {
+  transform: rotate(270deg);
+}
+
+.settings-section > summary span {
+  color: var(--text);
+  font-weight: 900;
+}
+
+.settings-section > summary small {
+  grid-column: 1;
+  color: var(--muted);
+  font-weight: 800;
+}
+
+.settings-section .panel {
+  border: 0;
+  border-top: 1px solid var(--border);
+  border-radius: 0;
+  box-shadow: none;
+}
+
 .field {
   display: grid;
   gap: 0.45rem;
@@ -1653,7 +1701,7 @@ summary {
   }
 
   .content {
-    padding: 0.85rem 0.85rem calc(6.75rem + env(safe-area-inset-bottom));
+    padding: 0.85rem 0.85rem calc(2rem + env(safe-area-inset-bottom));
   }
 
   .app-layout {
@@ -1663,68 +1711,6 @@ summary {
 
   .sidebar {
     display: none;
-  }
-
-  .bottom-nav {
-    position: fixed;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    z-index: 15;
-    display: grid;
-    grid-template-columns: repeat(5, minmax(0, 1fr));
-    gap: 0.25rem;
-    padding: 0.5rem 0.5rem calc(0.5rem + env(safe-area-inset-bottom));
-    background: color-mix(in srgb, var(--surface) 96%, transparent);
-    border-top: 1px solid var(--border);
-    box-shadow: 0 -10px 26px rgba(15, 18, 24, 0.12);
-    backdrop-filter: blur(16px);
-  }
-
-  .bottom-nav-button {
-    min-height: 58px;
-    display: grid;
-    place-items: center;
-    gap: 0.15rem;
-    padding: 0.35rem 0.25rem;
-    border-color: transparent;
-    border-radius: 16px;
-    background: transparent;
-    color: var(--muted);
-    font-size: 0.74rem;
-  }
-
-  .bottom-nav-button.active {
-    border-color: transparent;
-    background: var(--accent);
-    color: var(--accent-strong);
-  }
-
-  body:not([data-theme="dark"]) .bottom-nav-button.active {
-    color: #ffffff;
-  }
-
-  body[data-theme="dark"] .bottom-nav-button.active {
-    color: #111114;
-  }
-
-  .bottom-nav-icon {
-    display: grid;
-    place-items: center;
-    width: 30px;
-    height: 30px;
-    border-radius: 999px;
-    background: transparent;
-    font-weight: 900;
-  }
-
-  .bottom-nav-icon .app-icon {
-    width: 19px;
-    height: 19px;
-  }
-
-  .bottom-nav-button.active .bottom-nav-icon {
-    background: transparent;
   }
 
   .topbar {
@@ -1939,7 +1925,7 @@ summary {
 
   .fab-menu {
     right: 1rem;
-    bottom: calc(5.35rem + env(safe-area-inset-bottom));
+    bottom: calc(1rem + env(safe-area-inset-bottom));
   }
 
   .widget-small,

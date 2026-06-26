@@ -1,6 +1,6 @@
 {
   "app": "Household Assistant",
-  "version": "1.0.0-alpha.9",
+  "version": "1.0.0-alpha.10",
   "channel": "alpha",
   "buildDate": "2026-06-26",
   "minimumDataVersion": 1,
@@ -17,6 +17,7 @@
     "Fixed Android number keypad closing while editing debt and savings amounts.",
     "Reduced scrolling in Debt Tracker and Savings Goals with sticky add bars and compact expandable cards.",
     "Refreshed the visual design with a cleaner banking-app inspired style.",
-    "Added a top hamburger app menu and collapsible finance summary sections."
+    "Added a top hamburger app menu and collapsible finance summary sections.",
+    "Removed the bottom navigation panel, added smaller text, and changed Settings into expandable phone-style sections."
   ]
 }

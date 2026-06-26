@@ -1,5 +1,12 @@
 # Household Assistant Changelog
 
+## 1.0.0-alpha.10 - 2026-06-26
+
+- Removed the bottom navigation panel now that the top hamburger menu is available.
+- Reduced mobile bottom spacing left behind by the old nav panel.
+- Added a smaller text size option.
+- Reworked Settings into phone-style expandable sections.
+
 ## 1.0.0-alpha.9 - 2026-06-26
 
 - Added a top hamburger menu for quick access to app areas.

@@ -101,7 +101,6 @@ function renderShell(data) {
       ]),
       el("main", { id: "mainContent", className: "content", tabindex: "-1" }, [searchPanel(data), view(app)])
     ]),
-    bottomNavigation(),
     floatingActions()
   ]); 
 }
@@ -154,30 +153,6 @@ function navButton(module) {
     el("span", { text: module.name }),
     el("small", { text: module.status === "active" ? "Ready" : `Phase ${module.phase}` })
   ]);
-}
-
-function bottomNavigation() {
-  const items = [
-    { id: "dashboard", label: "Home", iconName: "home" },
-    { id: "money", label: "Money", iconName: "money" },
-    { id: "tasks", label: "Tasks", iconName: "tasks" },
-    { id: "food", label: "Food", iconName: "food" },
-    { id: "settings", label: "Settings", iconName: "settings" }
-  ];
-
-  return el("nav", { className: "bottom-nav", "aria-label": "Primary mobile navigation" },
-    items.map((item) =>
-      el("button", {
-        type: "button",
-        className: `bottom-nav-button ${app.route === item.id ? "active" : ""}`,
-        "aria-current": app.route === item.id ? "page" : null,
-        onClick: () => app.navigate(item.id)
-      }, [
-        el("span", { className: "bottom-nav-icon" }, [icon(item.iconName)]),
-        el("span", { text: item.label })
-      ])
-    )
-  );
 }
 
 function searchPanel(data) {

@@ -18,12 +18,22 @@ export function renderSettings(app) {
         el("p", { text: "Users, roles, accessibility and backup are separated from the app shell so updates can keep your information." })
       ])
     ]),
-    preferences(app, data),
-    syncPanel(app, data),
-    appStatusPanel(app, data),
-    notificationPanel(app, data),
-    accountPanel(app, data, user),
-    backupPanel(data, fileInput)
+    settingsSection("Accessibility", "Theme, text size and contrast.", preferences(app, data), true),
+    settingsSection("Sync", "Connect phones and move household data.", syncPanel(app, data)),
+    settingsSection("App version", "Updates, alpha build and changelog.", appStatusPanel(app, data)),
+    settingsSection("Notifications", "Reminder permission and reminder types.", notificationPanel(app, data)),
+    settingsSection("Household users", "Members, roles and new users.", accountPanel(app, data, user)),
+    settingsSection("Backup", "Export and import household data.", backupPanel(data, fileInput))
+  ]);
+}
+
+function settingsSection(title, copy, content, open = false) {
+  return el("details", { className: "settings-section", open: open ? "open" : null }, [
+    el("summary", {}, [
+      el("span", { text: title }),
+      el("small", { text: copy })
+    ]),
+    content
   ]);
 }
 
@@ -232,10 +242,9 @@ function notificationPanel(app, data) {
 
 function preferences(app, data) {
   return el("section", { className: "panel" }, [
-    el("h2", { text: "Accessibility" }),
     el("div", { className: "field-grid" }, [
       inputField("Theme", select(data.settings.theme, ["light", "dark"], (value) => app.store.update((next) => (next.settings.theme = value)))),
-      inputField("Text size", select(data.settings.textScale, ["comfortable", "large", "extra-large"], (value) => app.store.update((next) => (next.settings.textScale = value))))
+      inputField("Text size", select(data.settings.textScale, ["small", "comfortable", "large", "extra-large"], (value) => app.store.update((next) => (next.settings.textScale = value))))
     ]),
     el("label", { className: "toggle-row" }, [
       el("input", { type: "checkbox", checked: data.settings.highContrast ? "checked" : null, onChange: (event) => app.store.update((next) => (next.settings.highContrast = event.target.checked)) }),
