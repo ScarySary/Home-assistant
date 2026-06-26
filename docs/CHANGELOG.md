@@ -1,5 +1,12 @@
 # Household Assistant Changelog
 
+## 1.0.0-alpha.7 - 2026-06-26
+
+- Reduced scrolling in Debt Tracker and Savings Goals.
+- Added sticky top action bars for adding debts and savings goals.
+- Changed debt and savings cards to compact summaries with expandable edit sections.
+- Kept delete actions visible on each compact card.
+
 ## 1.0.0-alpha.6 - 2026-06-26
 
 - Fixed Android number keypad closing after each digit while editing debt and savings amounts.

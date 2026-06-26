@@ -1,6 +1,6 @@
 {
   "app": "Household Assistant",
-  "version": "1.0.0-alpha.6",
+  "version": "1.0.0-alpha.7",
   "channel": "alpha",
   "buildDate": "2026-06-26",
   "minimumDataVersion": 1,
@@ -14,6 +14,7 @@
     "Supports Supabase publishable keys that start with sb_publishable_.",
     "Supabase Project URL field now accepts common copied URL formats and cleans them safely.",
     "Added fuller edit/delete controls for debts, repayment history and savings goals.",
-    "Fixed Android number keypad closing while editing debt and savings amounts."
+    "Fixed Android number keypad closing while editing debt and savings amounts.",
+    "Reduced scrolling in Debt Tracker and Savings Goals with sticky add bars and compact expandable cards."
   ]
 }

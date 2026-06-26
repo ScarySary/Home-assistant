@@ -1235,10 +1235,62 @@ body[data-theme="dark"] .icon-control {
   font-weight: 900;
 }
 
+.finance-action-bar {
+  position: sticky;
+  top: 78px;
+  z-index: 4;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.75rem;
+  border: 2px solid var(--border);
+  border-radius: var(--radius);
+  background: color-mix(in srgb, var(--surface) 94%, transparent);
+  box-shadow: var(--shadow);
+  backdrop-filter: blur(14px);
+}
+
+.finance-action-bar div {
+  display: grid;
+  gap: 0.15rem;
+}
+
+.finance-action-bar span {
+  color: var(--muted);
+  font-size: 0.9rem;
+  font-weight: 800;
+}
+
+.finance-action-bar button {
+  min-width: 9rem;
+}
+
 .tracker-card {
   display: grid;
-  gap: 1rem;
+  gap: 0.75rem;
   box-shadow: none;
+}
+
+.compact-card-topline {
+  align-items: center;
+}
+
+.compact-card-title {
+  display: grid;
+  gap: 0.18rem;
+  min-width: 0;
+}
+
+.compact-card-title strong,
+.compact-card-title span {
+  overflow-wrap: anywhere;
+}
+
+.compact-card-title span {
+  color: var(--muted);
+  font-size: 0.92rem;
+  font-weight: 800;
 }
 
 .name-input {
@@ -1610,6 +1662,7 @@ summary {
   .section-head button,
   .hero-actions button,
   .action-row button,
+  .finance-action-bar button,
   .quick-action-grid button,
   .hidden-widget-list button,
   .widget-controls button,
@@ -1638,6 +1691,16 @@ summary {
   .dashboard-widget,
   .tracker-card {
     padding: 0.9rem;
+  }
+
+  .finance-action-bar {
+    top: 66px;
+    align-items: stretch;
+    padding: 0.65rem;
+  }
+
+  .finance-action-bar button {
+    min-width: 0;
   }
 
   .today-card {

@@ -7,11 +7,18 @@ export function renderDebts(app) {
   const summary = debtSummary(debts);
 
   return el("section", { className: "view-stack", "aria-labelledby": "debtsTitle" }, [
-    header("Debt Tracker", "Manual repayments, instant balances and estimated debt-free dates.", () => addDebt(app)),
+    header("Debt Tracker", "Manual repayments, instant balances and estimated debt-free dates."),
     el("section", { className: "metric-grid", "aria-label": "Debt summary" }, [
       metric("Remaining", currency.format(summary.totalDebt)),
       metric("Paid off", currency.format(summary.totalPaid)),
       metric("Debt-free", summary.debtFreeDate)
+    ]),
+    el("section", { className: "finance-action-bar", "aria-label": "Debt actions" }, [
+      el("div", {}, [
+        el("strong", { text: `${debts.length} ${debts.length === 1 ? "debt" : "debts"}` }),
+        el("span", { text: `${currency.format(summary.totalDebt)} remaining` })
+      ]),
+      el("button", { type: "button", onClick: () => addDebt(app), text: "Add debt" })
     ]),
     el("div", { className: "item-list" }, debts.length ? debts.map((debt) => debtCard(app, debt)) : [emptyState("Add your first debt to start tracking progress.")])
   ]);
@@ -25,42 +32,46 @@ function debtCard(app, debt) {
   const status = el("span", { className: "inline-status", role: "status" });
 
   card.append(
-    el("div", { className: "card-topline" }, [
-      editableText(debt.name, "Debt name", (value) => updateDebt(app, debt.id, (item) => (item.name = value || "New debt"))),
+    el("div", { className: "card-topline compact-card-topline" }, [
+      el("div", { className: "compact-card-title" }, [
+        el("strong", { text: debt.name }),
+        el("span", { text: `${currency.format(debt.balance)} remaining - ${Math.round(percent)}% paid` })
+      ]),
       el("button", { type: "button", className: "danger-icon", "aria-label": `Remove ${debt.name}`, onClick: () => removeDebt(app, debt.id), text: "X" })
     ]),
+    progressBar(percent, `${Math.round(percent)} percent paid off`),
     el("details", { className: "card-details" }, [
-      el("summary", { text: "Debt details" }),
+      el("summary", { text: "Edit, repay and history" }),
+      inputField("Debt name", editableText(debt.name, "Debt name", (value) => updateDebt(app, debt.id, (item) => (item.name = value || "New debt")))),
       el("div", { className: "field-grid" }, [
         inputField("Original amount", moneyInput(debt.original, (value) => updateDebt(app, debt.id, (item) => (item.original = value)))),
         inputField("Current balance", moneyInput(debt.balance, (value) => updateDebt(app, debt.id, (item) => (item.balance = value))))
-      ])
-    ]),
-    el("div", { className: "field-grid payment-grid" }, [
-      inputField("Repayment date", repaymentDate),
-      inputField("Repayment amount", repaymentAmount)
-    ]),
-    el("div", { className: "action-row" }, [
-      el("button", {
-        type: "button",
-        onClick: () => {
-          const amount = toMoney(repaymentAmount.value);
-          if (!amount) {
-            status.textContent = "Enter an amount first.";
-            return;
-          }
-          addRepayment(app, debt.id, repaymentDate.value || todayIso(), amount);
-        },
-        text: "Add repayment"
-      }),
-      status
+      ]),
+      el("div", { className: "field-grid payment-grid" }, [
+        inputField("Repayment date", repaymentDate),
+        inputField("Repayment amount", repaymentAmount)
+      ]),
+      el("div", { className: "action-row" }, [
+        el("button", {
+          type: "button",
+          onClick: () => {
+            const amount = toMoney(repaymentAmount.value);
+            if (!amount) {
+              status.textContent = "Enter an amount first.";
+              return;
+            }
+            addRepayment(app, debt.id, repaymentDate.value || todayIso(), amount);
+          },
+          text: "Add repayment"
+        }),
+        status
+      ]),
+      history(app, debt)
     ]),
     el("div", { className: "split-line" }, [
       el("strong", { text: `${Math.round(percent)}% paid off` }),
       el("span", { text: estimateDebtFreeDate(debt) })
-    ]),
-    progressBar(percent, `${Math.round(percent)} percent paid off`),
-    history(app, debt)
+    ])
   );
 
   return card;
@@ -154,10 +165,9 @@ function setRepaymentAmount(app, debtId, repaymentId, nextAmount) {
   });
 }
 
-function header(title, copy, onAdd) {
+function header(title, copy) {
   return el("div", { className: "section-head" }, [
-    el("div", {}, [el("p", { className: "eyebrow", text: "Implemented module" }), el("h1", { id: "debtsTitle", text: title }), el("p", { text: copy })]),
-    el("button", { type: "button", onClick: onAdd, text: "Add debt" })
+    el("div", {}, [el("p", { className: "eyebrow", text: "Implemented module" }), el("h1", { id: "debtsTitle", text: title }), el("p", { text: copy })])
   ]);
 }
 
