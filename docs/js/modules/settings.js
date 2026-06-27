@@ -2,7 +2,7 @@ import { APP_BUILD_DATE, APP_RELEASE_CHANNEL, APP_VERSION, roles } from "../core
 import { canManageUsers, createPasswordRecord, normaliseRole } from "../core/auth.js";
 import { el, inputField } from "../core/dom.js";
 import { notificationSupport, requestReminderPermission, showTestNotification } from "../core/notifications.js";
-import { cloudSignedIn, createCloudHousehold, loadCloudMembership, pullHouseholdFromCloud, pushHouseholdToCloud, sanitizedSync, signInSupabaseAccount, signUpSupabaseAccount, syncConfigured, syncStatus } from "../core/sync.js";
+import { cloudSignedIn, createCloudHousehold, friendlySyncMessage, loadCloudMembers, loadCloudMembership, pullHouseholdFromCloud, pushHouseholdToCloud, sanitizedSync, signInSupabaseAccount, signUpSupabaseAccount, syncConfigured, syncStatus } from "../core/sync.js";
 import { applyWaitingUpdate, checkForUpdates } from "../core/updates.js";
 
 export function renderSettings(app) {
@@ -52,9 +52,10 @@ function syncPanel(app, data) {
   const urlInput = el("input", { type: "url", value: sync.supabaseUrl, placeholder: "https://your-project.supabase.co", autocomplete: "off" });
   const anonInput = el("input", { type: "password", value: sync.anonKey, placeholder: "Supabase publishable or anon key", autocomplete: "off" });
   const householdInput = el("input", { type: "text", value: sync.householdKey || "", placeholder: "Cloud household ID appears here", autocomplete: "off" });
+  const deviceInput = el("input", { type: "text", value: sync.deviceName || "This phone", placeholder: "Sara's phone", autocomplete: "off" });
   const emailInput = el("input", { type: "email", value: sync.auth?.email || "", placeholder: "you@example.com", autocomplete: "email" });
   const passwordInput = el("input", { type: "password", placeholder: "Supabase account password", autocomplete: "current-password" });
-  const status = el("p", { className: "inline-status", role: "status", text: sync.lastStatus || "Sync is not configured yet." });
+  const status = el("p", { className: "inline-status", role: "status", text: friendlySyncMessage(sync.lastStatus) || "Sync is not configured yet." });
   const statusText = syncStatus(data.settings);
   const canUseAutoSync = Boolean(sync.backupExportedAt && cloudSignedIn(data.settings) && sync.lastManualSyncAt);
 
@@ -64,6 +65,7 @@ function syncPanel(app, data) {
       next.settings.sync.supabaseUrl = urlInput.value.trim();
       next.settings.sync.anonKey = anonInput.value.trim();
       next.settings.sync.householdKey = householdInput.value.trim();
+      next.settings.sync.deviceName = deviceInput.value.trim() || "This phone";
       next.settings.sync.mode = "supabase-auth";
       next.settings.sync.status = syncConfigured(next.settings) ? "Local only" : "Local only";
       next.settings.sync.lastStatus = syncConfigured(next.settings) ? "Supabase details saved. Export a backup before signing in and syncing." : "Sync settings saved, but the Supabase URL or publishable key is missing.";
@@ -85,14 +87,14 @@ function syncPanel(app, data) {
       status.textContent = "Export a backup first, then press Sync now.";
       app.store.update((next) => {
         next.settings.sync.status = "Sync error";
-        next.settings.sync.lastStatus = "Export a backup before first sync.";
+        next.settings.sync.lastStatus = "Backup needed before sync.";
       });
       return;
     }
-    status.textContent = "Syncing private household data...";
+    status.textContent = "Syncing...";
     app.store.update((next) => {
       next.settings.sync.status = "Syncing";
-      next.settings.sync.lastStatus = "Syncing private household data...";
+      next.settings.sync.lastStatus = "Syncing...";
     });
     try {
       const result = await pushHouseholdToCloud(app.store.get());
@@ -107,17 +109,19 @@ function syncPanel(app, data) {
             lastPushedAt: result.updatedAt,
             lastPulledAt: result.updatedAt,
             lastConflictWarning: result.conflictWarning,
-            lastStatus: result.conflictWarning || "Synced safely."
+            lastConflictAt: result.conflictWarning ? result.updatedAt : null,
+            lastStatus: result.conflictWarning || `Synced just now from ${app.store.get().settings.sync.deviceName || "this phone"}.`
           }
         }
       });
     } catch (error) {
+      const message = friendlySyncMessage(error.message);
       app.store.update((next) => {
         next.settings.sync.status = "Sync error";
         next.settings.sync.lastError = error.message;
-        next.settings.sync.lastStatus = error.message;
+        next.settings.sync.lastStatus = message;
       });
-      status.textContent = error.message;
+      status.textContent = message;
     }
   };
 
@@ -130,6 +134,8 @@ function syncPanel(app, data) {
       el("span", { className: `status-pill sync-${statusText.toLowerCase().replaceAll(" ", "-")}`, text: statusText })
     ]),
     el("p", { text: "Shared phone data now uses Supabase Auth and household-level database rules. Only use the public publishable/anon key here. Never paste a service_role or secret key into this app." }),
+    syncOverview(sync, statusText),
+    syncSetupChecklist(data),
     el("div", { className: "warning-card" }, [
       el("strong", { text: "Before enabling sync, export a backup first." }),
       el("span", { text: sync.backupExportedAt ? `Last backup exported ${new Date(sync.backupExportedAt).toLocaleString("en-AU")}` : "This protects your local phone data before any cloud copy is created." })
@@ -137,7 +143,8 @@ function syncPanel(app, data) {
     el("div", { className: "field-grid" }, [
       inputField("Supabase URL", urlInput),
       inputField("Supabase publishable key", anonInput),
-      inputField("Cloud household ID", householdInput)
+      inputField("Cloud household ID", householdInput),
+      inputField("This device name", deviceInput)
     ]),
     el("div", { className: "action-row" }, [
       el("button", {
@@ -166,11 +173,12 @@ function syncPanel(app, data) {
             try {
               saveAuth(await signInSupabaseAccount(app.store.get().settings, emailInput.value, passwordInput.value));
             } catch (error) {
+              const message = friendlySyncMessage(error.message);
               app.store.update((next) => {
                 next.settings.sync.status = "Sync error";
-                next.settings.sync.lastStatus = error.message;
+                next.settings.sync.lastStatus = message;
               });
-              status.textContent = error.message;
+              status.textContent = message;
             }
           },
           text: "Sign in"
@@ -184,11 +192,12 @@ function syncPanel(app, data) {
             try {
               saveAuth(await signUpSupabaseAccount(app.store.get().settings, emailInput.value, passwordInput.value));
             } catch (error) {
+              const message = friendlySyncMessage(error.message);
               app.store.update((next) => {
                 next.settings.sync.status = "Sync error";
-                next.settings.sync.lastStatus = error.message;
+                next.settings.sync.lastStatus = message;
               });
-              status.textContent = error.message;
+              status.textContent = message;
             }
           },
           text: "Create account"
@@ -207,15 +216,16 @@ function syncPanel(app, data) {
             app.store.update((next) => {
               next.household.id = cloud.householdId || next.household.id;
               next.settings.sync.householdKey = cloud.householdId || next.settings.sync.householdKey;
-              next.settings.sync.lastStatus = "Private cloud household is ready.";
+              next.settings.sync.lastStatus = "Household connected. Press Sync now.";
               next.settings.sync.status = "Synced";
             });
           } catch (error) {
+            const message = friendlySyncMessage(error.message);
             app.store.update((next) => {
               next.settings.sync.status = "Sync error";
-              next.settings.sync.lastStatus = error.message;
+              next.settings.sync.lastStatus = message;
             });
-            status.textContent = error.message;
+            status.textContent = message;
           }
         },
         text: "Create cloud household"
@@ -232,15 +242,16 @@ function syncPanel(app, data) {
             app.store.update((next) => {
               next.household.id = membership.household_id;
               next.settings.sync.householdKey = membership.household_id;
-              next.settings.sync.lastStatus = `Joined household as ${membership.role}.`;
+              next.settings.sync.lastStatus = `Joined household as ${membership.role}. Press Sync now.`;
               next.settings.sync.status = "Synced";
             });
           } catch (error) {
+            const message = friendlySyncMessage(error.message);
             app.store.update((next) => {
               next.settings.sync.status = "Sync error";
-              next.settings.sync.lastStatus = error.message;
+              next.settings.sync.lastStatus = message;
             });
-            status.textContent = error.message;
+            status.textContent = message;
           }
         },
         text: "Join existing household"
@@ -267,19 +278,59 @@ function syncPanel(app, data) {
                   ...currentSync,
                   lastPulledAt: new Date().toISOString(),
                   status: "Synced",
+                  lastConflictWarning: "",
+                  lastConflictAt: null,
                   lastStatus: "Cloud copy imported onto this phone."
                 }
               }
             });
           } catch (error) {
+            const message = friendlySyncMessage(error.message);
             app.store.update((next) => {
               next.settings.sync.status = "Sync error";
-              next.settings.sync.lastStatus = error.message;
+              next.settings.sync.lastStatus = message;
             });
-            status.textContent = error.message;
+            status.textContent = message;
           }
         },
         text: "Pull cloud copy only"
+      }),
+      el("button", {
+        type: "button",
+        className: "secondary",
+        onClick: async () => {
+          saveSettings();
+          status.textContent = "Refreshing household members...";
+          try {
+            const members = await loadCloudMembers(app.store.get().settings);
+            app.store.update((next) => {
+              next.settings.sync.cloudMembers = members;
+              next.settings.sync.lastStatus = `${members.length} household member${members.length === 1 ? "" : "s"} connected.`;
+              next.settings.sync.status = "Synced";
+            });
+          } catch (error) {
+            const message = friendlySyncMessage(error.message);
+            app.store.update((next) => {
+              next.settings.sync.status = "Sync error";
+              next.settings.sync.lastStatus = message;
+            });
+            status.textContent = message;
+          }
+        },
+        text: "Refresh members"
+      }),
+      el("button", {
+        type: "button",
+        className: "secondary",
+        onClick: () => {
+          app.store.update((next) => {
+            next.settings.sync.lastConflictWarning = "";
+            next.settings.sync.lastConflictAt = null;
+            next.settings.sync.lastStatus = "Sync message cleared. Run Sync now when ready.";
+            next.settings.sync.status = syncConfigured(next.settings) ? "Synced" : "Local only";
+          });
+        },
+        text: "Clear sync message"
       })
     ]),
     el("label", { className: "toggle-row" }, [
@@ -295,8 +346,64 @@ function syncPanel(app, data) {
       el("span", { text: canUseAutoSync ? "Auto-sync after local changes" : "Auto-sync unlocks after backup, sign-in and one manual sync" })
     ]),
     status,
-    sync.lastConflictWarning ? el("small", { className: "warning-text", text: sync.lastConflictWarning }) : el("small", { text: "If two devices edit the same item, the newest updatedAt timestamp wins and a warning appears here." })
+    householdMembers(sync),
+    sync.lastConflictWarning ? el("small", { className: "warning-text", text: `${sync.lastConflictWarning} This was handled; clear the message after you have checked both phones.` }) : el("small", { text: "If two devices edit the same item, the newest updatedAt timestamp wins and a warning appears here." })
   ]);
+}
+
+function syncOverview(sync, statusText) {
+  const lastSynced = sync.lastManualSyncAt || sync.lastPulledAt || sync.lastPushedAt;
+  const conflictText = sync.lastConflictWarning
+    ? `Resolved ${sync.lastConflictWarning.replace(" resolved. The newest edit was kept.", "").toLowerCase()}`
+    : "No active conflicts";
+  return el("div", { className: "sync-overview-grid", "aria-label": "Sync overview" }, [
+    settingStat("Sync status", statusText),
+    settingStat("Last synced", lastSynced ? new Date(lastSynced).toLocaleString("en-AU") : "Not yet"),
+    settingStat("This device", sync.deviceName || "This phone"),
+    settingStat("Conflicts", conflictText)
+  ]);
+}
+
+function syncSetupChecklist(data) {
+  const sync = data.settings.sync;
+  const steps = [
+    ["Supabase details saved", syncConfigured(data.settings)],
+    ["Backup exported", Boolean(sync.backupExportedAt)],
+    ["Signed in", cloudSignedIn(data.settings)],
+    ["Household connected", Boolean(sync.householdKey)],
+    ["Manual sync completed", Boolean(sync.lastManualSyncAt)]
+  ];
+  return el("div", { className: "sync-checklist", "aria-label": "Sync setup checklist" }, [
+    el("strong", { text: "Sync setup checklist" }),
+    el("div", {}, steps.map(([label, done]) =>
+      el("span", { className: done ? "check-item done" : "check-item" }, [
+        el("span", { "aria-hidden": "true", text: done ? "Done" : "Next" }),
+        el("span", { text: label })
+      ])
+    ))
+  ]);
+}
+
+function householdMembers(sync) {
+  const members = Array.isArray(sync.cloudMembers) ? sync.cloudMembers : [];
+  return el("div", { className: "sync-members" }, [
+    el("strong", { text: "Connected household members" }),
+    members.length
+      ? el("div", { className: "user-list compact-user-list" }, members.map((member) =>
+          el("article", { className: "user-row" }, [
+            el("div", {}, [
+              el("strong", { text: member.role || "Member" }),
+              el("span", { text: shortId(member.user_id) })
+            ]),
+            el("span", { className: "status-pill", text: "Connected" })
+          ])
+        ))
+      : el("p", { className: "planned-note", text: "Press Refresh members after Sara and Zac are both added in Supabase." })
+  ]);
+}
+
+function shortId(value = "") {
+  return value.length > 12 ? `${value.slice(0, 8)}...${value.slice(-4)}` : value || "Unknown user";
 }
 
 function appStatusPanel(app, data) {

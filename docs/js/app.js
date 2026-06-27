@@ -3,7 +3,7 @@ import { createStore, hasHouseholdData, saveData } from "./core/store.js";
 import { clearSession, createPasswordRecord, currentUser, setSession, verifyPassword } from "./core/auth.js";
 import { el, inputField } from "./core/dom.js";
 import { icon } from "./core/icons.js";
-import { syncHouseholdSnapshot, syncStatus } from "./core/sync.js";
+import { friendlySyncMessage, syncHouseholdSnapshot, syncStatus } from "./core/sync.js";
 import { listenForAppUpdate } from "./core/updates.js";
 import { renderDashboard } from "./modules/dashboard.js";
 import { renderDebts } from "./modules/debts.js";
@@ -383,7 +383,8 @@ function queueAutoSync(data) {
             lastPushedAt: result.updatedAt,
             lastPulledAt: result.updatedAt,
             lastConflictWarning: result.conflictWarning,
-            lastStatus: result.conflictWarning || "Auto-sync complete."
+            lastConflictAt: result.conflictWarning ? result.updatedAt : null,
+            lastStatus: result.conflictWarning || `Synced just now from ${store.get().settings.sync.deviceName || "this phone"}.`
           }
         }
       });
@@ -392,7 +393,7 @@ function queueAutoSync(data) {
       store.update((next) => {
         next.settings.sync.status = "Sync error";
         next.settings.sync.lastError = error.message;
-        next.settings.sync.lastStatus = error.message;
+        next.settings.sync.lastStatus = friendlySyncMessage(error.message);
       });
     } finally {
       autoSyncInFlight = false;

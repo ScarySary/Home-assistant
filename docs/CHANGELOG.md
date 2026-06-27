@@ -1,5 +1,14 @@
 # Household Assistant Changelog
 
+## 1.0.0-alpha.12 - 2026-06-27
+
+- Added clearer everyday sync messages for two-phone use.
+- Added sync overview cards for status, last synced time, device name and conflict state.
+- Added a sync setup checklist for second-phone setup.
+- Added connected household members visibility from Supabase.
+- Added a button to clear resolved conflict warnings.
+- Clean syncs now clear old conflict warnings instead of leaving them loud forever.
+
 ## 1.0.0-alpha.11 - 2026-06-27
 
 - Improved dark-mode contrast for the Home greeting.

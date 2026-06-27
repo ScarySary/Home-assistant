@@ -103,9 +103,13 @@ export function createDefaultData() {
         status: "Local only",
         lastError: "",
         lastConflictWarning: "",
+        lastConflictAt: null,
         backupExportedAt: null,
         lastManualSyncAt: null,
         autoSync: false,
+        deviceId: crypto.randomUUID(),
+        deviceName: "This phone",
+        cloudMembers: [],
         auth: {
           userId: "",
           email: "",
@@ -146,13 +150,20 @@ export function normalizeData(raw) {
 }
 
 function normalizeSettings(baseSettings, rawSettings) {
+  const rawSync = rawSettings.sync || {};
   return {
     ...baseSettings,
     ...rawSettings,
     dashboard: normalizeDashboardSettings(rawSettings.dashboard, baseSettings.dashboard),
     updates: { ...baseSettings.updates, ...(rawSettings.updates || {}) },
     notifications: { ...baseSettings.notifications, ...(rawSettings.notifications || {}) },
-    sync: { ...baseSettings.sync, ...(rawSettings.sync || {}) }
+    sync: {
+      ...baseSettings.sync,
+      ...rawSync,
+      deviceId: rawSync.deviceId || baseSettings.sync.deviceId,
+      deviceName: rawSync.deviceName || baseSettings.sync.deviceName,
+      auth: { ...baseSettings.sync.auth, ...(rawSync.auth || {}) }
+    }
   };
 }
 

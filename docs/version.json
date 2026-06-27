@@ -1,6 +1,6 @@
 {
   "app": "Household Assistant",
-  "version": "1.0.0-alpha.11",
+  "version": "1.0.0-alpha.12",
   "channel": "alpha",
   "buildDate": "2026-06-27",
   "minimumDataVersion": 1,
@@ -23,6 +23,9 @@
     "Added updatedAt conflict handling so the newest item edit wins and a conflict warning is shown.",
     "Added Streaming Services under Money without storing passwords.",
     "Added RLS setup instructions, a Capacitor plan and a private Android beta checklist.",
-    "Improved dark-mode contrast for the dashboard greeting."
+    "Improved dark-mode contrast for the dashboard greeting.",
+    "Polished sync messages for everyday two-phone use.",
+    "Added last synced time, this device name, connected members and a setup checklist.",
+    "Added a button to clear resolved conflict warnings after checking both phones."
   ]
 }

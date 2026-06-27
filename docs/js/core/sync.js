@@ -14,6 +14,18 @@ export function syncStatus(settings) {
   return sync.status || (cloudSignedIn(settings) ? "Synced" : "Local only");
 }
 
+export function friendlySyncMessage(message = "") {
+  if (!message) return "";
+  if (/JWT expired|invalid jwt/i.test(message)) return "Sign in again to refresh sync.";
+  if (/Failed to fetch|NetworkError|Load failed/i.test(message)) return "Waiting for internet. Try Sync now again when online.";
+  if (/before first sync|backup/i.test(message)) return "Backup needed before sync.";
+  if (/Sign in with Supabase Auth/i.test(message)) return "Sign in again before syncing.";
+  if (/No household membership/i.test(message)) return "This account is not connected to the household yet.";
+  if (/invalid input syntax for type uuid/i.test(message)) return "Use the long household ID from Supabase, not a nickname.";
+  if (/No cloud household data/i.test(message)) return "No cloud copy found yet. Sync from the main phone first.";
+  return message;
+}
+
 export async function signUpSupabaseAccount(settings, email, password) {
   const sync = settings.sync;
   validateBaseSettings(sync);
@@ -59,6 +71,18 @@ export async function loadCloudMembership(settings) {
   return Array.isArray(rows) ? rows[0] : null;
 }
 
+export async function loadCloudMembers(settings) {
+  const sync = settings.sync;
+  validateSignedIn(sync);
+  const householdId = sync.householdKey;
+  if (!householdId) return [];
+  const id = encodeURIComponent(householdId);
+  const rows = await callSupabase(sync, `/rest/v1/household_members?select=user_id,role,created_at&household_id=eq.${id}&order=created_at.asc`, {
+    method: "GET"
+  });
+  return Array.isArray(rows) ? rows : [];
+}
+
 export async function syncHouseholdSnapshot(data) {
   const sync = data.settings.sync;
   validateSignedIn(sync);
@@ -80,7 +104,7 @@ export async function syncHouseholdSnapshot(data) {
   return {
     data: mergeResult.data,
     conflictWarning: mergeResult.conflicts.length
-      ? `${mergeResult.conflicts.length} item conflict${mergeResult.conflicts.length === 1 ? "" : "s"} found. The newest edit was kept.`
+      ? `${mergeResult.conflicts.length} item conflict${mergeResult.conflicts.length === 1 ? "" : "s"} resolved. The newest edit was kept.`
       : "",
     updatedAt: new Date().toISOString()
   };
@@ -119,6 +143,8 @@ export function preparePayload(data, householdId = data.household.id) {
     },
     meta: {
       ...data.meta,
+      lastSyncedByDeviceId: data.settings.sync.deviceId || "",
+      lastSyncedByDeviceName: data.settings.sync.deviceName || "This phone",
       syncedAt: new Date().toISOString()
     }
   };
