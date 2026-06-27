@@ -99,6 +99,21 @@ export function createDefaultData() {
         anonKey: "",
         householdKey: "",
         syncSecret: "",
+        mode: "local",
+        status: "Local only",
+        lastError: "",
+        lastConflictWarning: "",
+        backupExportedAt: null,
+        lastManualSyncAt: null,
+        autoSync: false,
+        auth: {
+          userId: "",
+          email: "",
+          accessToken: "",
+          refreshToken: "",
+          expiresAt: 0,
+          signedInAt: null
+        },
         lastPulledAt: null,
         lastPushedAt: null,
         lastStatus: "Sync is not configured yet."
@@ -107,7 +122,8 @@ export function createDefaultData() {
     users: [],
     modules: {
       debts: { items: sampleDebts() },
-      savings: { goals: sampleGoals() }
+      savings: { goals: sampleGoals() },
+      streaming: { items: [] }
     }
   };
 }
@@ -123,7 +139,8 @@ export function normalizeData(raw) {
     users: Array.isArray(raw.users) ? raw.users : [],
     modules: {
       debts: { items: Array.isArray(raw.modules?.debts?.items) ? raw.modules.debts.items.map(normalizeDebt) : [] },
-      savings: { goals: Array.isArray(raw.modules?.savings?.goals) ? raw.modules.savings.goals.map(normalizeGoal) : [] }
+      savings: { goals: Array.isArray(raw.modules?.savings?.goals) ? raw.modules.savings.goals.map(normalizeGoal) : [] },
+      streaming: { items: Array.isArray(raw.modules?.streaming?.items) ? raw.modules.streaming.items.map(normalizeStreaming) : [] }
     }
   };
 }
@@ -168,27 +185,52 @@ function loadLegacyDebtData() {
 }
 
 function normalizeDebt(debt) {
+  const fallbackUpdatedAt = debt.updatedAt || debt.createdAt || new Date().toISOString();
   return {
     id: debt.id || crypto.randomUUID(),
     name: debt.name || "New debt",
     original: toMoney(debt.original),
     balance: toMoney(debt.balance),
+    createdAt: debt.createdAt || fallbackUpdatedAt,
+    updatedAt: fallbackUpdatedAt,
     repayments: Array.isArray(debt.repayments)
       ? debt.repayments.map((repayment) => ({
           id: repayment.id || crypto.randomUUID(),
           date: repayment.date || todayIso(),
-          amount: toMoney(repayment.amount)
+          amount: toMoney(repayment.amount),
+          createdAt: repayment.createdAt || repayment.updatedAt || fallbackUpdatedAt,
+          updatedAt: repayment.updatedAt || repayment.createdAt || fallbackUpdatedAt
         }))
       : []
   };
 }
 
 function normalizeGoal(goal) {
+  const fallbackUpdatedAt = goal.updatedAt || goal.createdAt || new Date().toISOString();
   return {
     id: goal.id || crypto.randomUUID(),
     name: goal.name || "New savings goal",
     target: toMoney(goal.target),
-    saved: toMoney(goal.saved)
+    saved: toMoney(goal.saved),
+    createdAt: goal.createdAt || fallbackUpdatedAt,
+    updatedAt: fallbackUpdatedAt
+  };
+}
+
+function normalizeStreaming(item) {
+  const fallbackUpdatedAt = item.updatedAt || item.createdAt || new Date().toISOString();
+  return {
+    id: item.id || crypto.randomUUID(),
+    serviceName: item.serviceName || item.name || "Streaming service",
+    loginEmail: item.loginEmail || "",
+    payer: item.payer || "",
+    monthlyCost: toMoney(item.monthlyCost),
+    renewalDate: item.renewalDate || todayIso(),
+    sharedWith: item.sharedWith || "",
+    notes: item.notes || "",
+    link: item.link || "",
+    createdAt: item.createdAt || fallbackUpdatedAt,
+    updatedAt: fallbackUpdatedAt
   };
 }
 
@@ -196,7 +238,7 @@ function sampleDebts() {
   return [
     {
       id: crypto.randomUUID(),
-      name: "Credit card",
+      name: "Demo credit card",
       original: 6200,
       balance: 4100,
       repayments: [
@@ -206,7 +248,7 @@ function sampleDebts() {
     },
     {
       id: crypto.randomUUID(),
-      name: "Car loan",
+      name: "Demo car loan",
       original: 18500,
       balance: 14250,
       repayments: [
@@ -219,8 +261,8 @@ function sampleDebts() {
 
 function sampleGoals() {
   return [
-    { id: crypto.randomUUID(), name: "Emergency fund", target: 10000, saved: 2750 },
-    { id: crypto.randomUUID(), name: "Holiday", target: 4500, saved: 900 }
+    { id: crypto.randomUUID(), name: "Demo emergency fund", target: 10000, saved: 2750 },
+    { id: crypto.randomUUID(), name: "Demo holiday", target: 4500, saved: 900 }
   ];
 }
 

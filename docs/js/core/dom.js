@@ -5,6 +5,7 @@ export function el(tag, options = {}, children = []) {
     if (key === "className") node.className = value;
     else if (key === "text") node.textContent = value;
     else if (key === "html") node.innerHTML = value;
+    else if (key === "value") node.value = value;
     else if (key.startsWith("on") && typeof value === "function") node.addEventListener(key.slice(2).toLowerCase(), value);
     else node.setAttribute(key, value);
   });

@@ -1,5 +1,16 @@
 # Household Assistant Changelog
 
+## 1.0.0-alpha.11 - 2026-06-27
+
+- Improved dark-mode contrast for the Home greeting.
+- Fixed Settings sections so button actions keep the current dropdown open.
+- Added Supabase Auth sync controls with backup-first safety.
+- Added sync status: Offline, Local only, Syncing, Synced and Sync error.
+- Added manual **Sync now** before guarded auto-sync can be enabled.
+- Added updatedAt conflict handling so the newest item edit wins and a warning appears.
+- Added Streaming Services under Money without storing passwords.
+- Added Supabase RLS setup, a Capacitor plan and a private Android beta checklist.
+
 ## 1.0.0-alpha.10 - 2026-06-26
 
 - Removed the bottom navigation panel now that the top hamburger menu is available.

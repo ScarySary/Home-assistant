@@ -86,14 +86,18 @@ function goalCard(app, goal) {
 
 function addGoal(app) {
   app.store.update((data) => {
-    data.modules.savings.goals.push({ id: crypto.randomUUID(), name: "New savings goal", target: 0, saved: 0 });
+    const now = new Date().toISOString();
+    data.modules.savings.goals.push({ id: crypto.randomUUID(), name: "New savings goal", target: 0, saved: 0, createdAt: now, updatedAt: now });
   });
 }
 
 function updateGoal(app, id, mutator) {
   app.store.update((data) => {
     const goal = data.modules.savings.goals.find((item) => item.id === id);
-    if (goal) mutator(goal);
+    if (goal) {
+      mutator(goal);
+      goal.updatedAt = new Date().toISOString();
+    }
   });
 }
 

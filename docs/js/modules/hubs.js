@@ -13,6 +13,7 @@ export function renderMoney(app) {
   return hub("Money", "Debts, savings, budget and bills in one place.", "money", [
     actionCard("Debt Tracker", "Manage balances, repayments and debt-free estimates.", currency.format(debts.totalDebt), "Remaining", "debts", () => app.navigate("debts"), progressBar(debtPercent, "Debt progress")),
     actionCard("Savings Goals", "Track savings progress beside your debt plan.", currency.format(savings.totalSaved), "Saved", "savings", () => app.navigate("savings"), progressBar(savingsPercent, "Savings progress")),
+    actionCard("Streaming Services", "Track subscriptions, renewal dates and shared login usernames without saving passwords.", `${data.modules.streaming?.items?.length || 0}`, "Services", "bills", () => app.navigate("streaming")),
     placeholderCard("Budget", "Income, expenses and categories will live here.", "bills"),
     placeholderCard("Bills", "Due dates and payment reminders will live here.", "bills")
   ]);
@@ -50,16 +51,17 @@ function hub(title, copy, iconName, cards) {
 }
 
 function actionCard(title, copy, value, label, iconName, onClick, extra) {
-  return el("article", { className: "hub-card" }, [
+  const children = [
     el("div", { className: "card-topline" }, [
       el("span", { className: "summary-icon" }, [icon(iconName)]),
       el("button", { type: "button", className: "secondary compact", onClick, text: "Open" })
     ]),
     el("h2", { text: title }),
     el("p", { text: copy }),
-    el("div", { className: "big-number" }, [el("strong", { text: value }), el("span", { text: label })]),
-    extra
-  ]);
+    el("div", { className: "big-number" }, [el("strong", { text: value }), el("span", { text: label })])
+  ];
+  if (extra) children.push(extra);
+  return el("article", { className: "hub-card" }, children);
 }
 
 function placeholderCard(title, copy, iconName) {

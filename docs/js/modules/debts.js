@@ -118,14 +118,18 @@ function history(app, debt) {
 
 function addDebt(app) {
   app.store.update((data) => {
-    data.modules.debts.items.push({ id: crypto.randomUUID(), name: "New debt", original: 0, balance: 0, repayments: [] });
+    const now = new Date().toISOString();
+    data.modules.debts.items.push({ id: crypto.randomUUID(), name: "New debt", original: 0, balance: 0, repayments: [], createdAt: now, updatedAt: now });
   });
 }
 
 function updateDebt(app, id, mutator) {
   app.store.update((data) => {
     const debt = data.modules.debts.items.find((item) => item.id === id);
-    if (debt) mutator(debt);
+    if (debt) {
+      mutator(debt);
+      debt.updatedAt = new Date().toISOString();
+    }
   });
 }
 
@@ -139,7 +143,8 @@ function removeDebt(app, id) {
 
 function addRepayment(app, id, date, amount) {
   updateDebt(app, id, (debt) => {
-    debt.repayments.push({ id: crypto.randomUUID(), date, amount });
+    const now = new Date().toISOString();
+    debt.repayments.push({ id: crypto.randomUUID(), date, amount, createdAt: now, updatedAt: now });
     debt.balance = Math.max(0, toMoney(debt.balance - amount));
   });
 }
@@ -157,7 +162,10 @@ function removeRepayment(app, debtId, repaymentId) {
 function updateRepayment(app, debtId, repaymentId, mutator) {
   updateDebt(app, debtId, (debt) => {
     const repayment = debt.repayments.find((item) => item.id === repaymentId);
-    if (repayment) mutator(repayment);
+    if (repayment) {
+      mutator(repayment);
+      repayment.updatedAt = new Date().toISOString();
+    }
   });
 }
 

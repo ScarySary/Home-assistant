@@ -1,5 +1,5 @@
-export const APP_VERSION = "1.0.0-alpha.10";
-export const APP_BUILD_DATE = "2026-06-26";
+export const APP_VERSION = "1.0.0-alpha.11";
+export const APP_BUILD_DATE = "2026-06-27";
 export const APP_RELEASE_CHANNEL = "alpha";
 export const DATA_KEY = "householdAssistant.userData.v1";
 export const LEGACY_DEBT_KEY = "auDebtSavingsTracker.v1";
@@ -11,6 +11,7 @@ export const moduleCatalog = [
   { id: "dashboard", name: "Dashboard", status: "active", phase: 2, summary: "Your household overview and future command centre." },
   { id: "debts", name: "Debt Tracker", status: "active", phase: 3, group: "Finances", summary: "Balances, repayments and debt-free estimates." },
   { id: "savings", name: "Savings Goals", status: "active", phase: 3, group: "Finances", summary: "Goals, progress and balances." },
+  { id: "streaming", name: "Streaming Services", status: "active", phase: 3, group: "Finances", summary: "Subscriptions, renewal dates and shared access notes without storing passwords." },
   { id: "budget", name: "Budget", status: "planned", phase: 3, group: "Finances", summary: "Income, expenses and household categories." },
   { id: "bills", name: "Bills", status: "planned", phase: 3, group: "Finances", summary: "Upcoming bills, due dates and payment reminders." },
   { id: "shopping", name: "Shopping List", status: "planned", phase: 4, summary: "Shared groceries, household supplies and role-based permissions." },

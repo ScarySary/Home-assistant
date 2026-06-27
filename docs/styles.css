@@ -200,7 +200,8 @@ a:focus-visible {
 }
 
 input,
-select {
+select,
+textarea {
   width: 100%;
   min-height: var(--tap);
   border: 2px solid var(--border);
@@ -208,6 +209,11 @@ select {
   background: var(--surface);
   color: var(--text);
   padding: 0.65rem 0.75rem;
+}
+
+textarea {
+  min-height: 96px;
+  resize: vertical;
 }
 
 .app-icon {
@@ -699,6 +705,18 @@ body[data-theme="dark"] .fab-button {
     linear-gradient(135deg, #ffffff 0%, #f7f7f8 100%);
 }
 
+body[data-theme="dark"] .dashboard-hero {
+  background:
+    linear-gradient(90deg, var(--accent-strong) 0 8px, transparent 8px),
+    linear-gradient(135deg, #242832 0%, #17191f 100%);
+  border-color: #4a515d;
+}
+
+.dashboard-hero h1,
+.dashboard-hero .eyebrow {
+  color: var(--text);
+}
+
 .today-card {
   min-width: 190px;
   display: grid;
@@ -728,7 +746,12 @@ body[data-theme="dark"] .fab-button {
 .hero-copy {
   max-width: 760px;
   margin-bottom: 0;
+  color: var(--ink-soft);
   font-weight: 700;
+}
+
+body[data-theme="dark"] .hero-copy {
+  color: #ffffff;
 }
 
 .hero-actions {
@@ -1352,6 +1375,57 @@ body[data-theme="dark"] .icon-control {
   font-size: 1rem;
 }
 
+.topbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.sync-offline,
+.sync-sync-error {
+  border-color: color-mix(in srgb, var(--danger) 42%, var(--border));
+  background: color-mix(in srgb, var(--danger) 15%, var(--surface));
+  color: var(--danger);
+}
+
+.sync-local-only {
+  background: var(--surface-soft);
+  color: var(--muted);
+}
+
+.sync-syncing {
+  border-color: color-mix(in srgb, var(--gold) 42%, var(--border));
+  background: color-mix(in srgb, var(--gold) 18%, var(--surface));
+  color: var(--gold);
+}
+
+.sync-synced {
+  border-color: color-mix(in srgb, var(--success) 42%, var(--border));
+  background: color-mix(in srgb, var(--success) 15%, var(--surface));
+  color: var(--success);
+}
+
+.warning-card {
+  display: grid;
+  gap: 0.35rem;
+  padding: 0.85rem;
+  border: 2px solid color-mix(in srgb, var(--gold) 42%, var(--border));
+  border-radius: var(--radius-sm);
+  background: color-mix(in srgb, var(--gold) 14%, var(--surface));
+}
+
+.warning-card strong {
+  color: var(--text);
+}
+
+.warning-card span,
+.warning-text {
+  color: var(--ink-soft);
+  font-weight: 800;
+}
+
 .settings-section {
   overflow: hidden;
   border: 1px solid var(--border);
@@ -1369,7 +1443,7 @@ body[data-theme="dark"] .icon-control {
 }
 
 .settings-section > summary::after {
-  content: "›";
+  content: ">";
   grid-row: 1 / span 2;
   grid-column: 2;
   align-self: center;
@@ -1735,6 +1809,18 @@ summary {
     align-self: center;
     min-height: 48px;
     padding-inline: 0.85rem;
+  }
+
+  .topbar-actions {
+    justify-content: flex-end;
+    gap: 0.4rem;
+  }
+
+  .topbar-actions .status-pill {
+    max-width: 8rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 
   h1 {

@@ -1,4 +1,4 @@
-const APP_CACHE = "household-assistant-shell-v21";
+const APP_CACHE = "household-assistant-shell-v22";
 const APP_FILES = [
   "./",
   "./index.html",
@@ -9,6 +9,8 @@ const APP_FILES = [
   "./ALPHA_INSTALL.md",
   "./GITHUB_PAGES_DEPLOY.md",
   "./SUPABASE_SYNC_SETUP.md",
+  "./PRIVATE_BETA_CHECKLIST.md",
+  "./CAPACITOR_PLAN.md",
   "./README.md",
   "./.nojekyll",
   "./js/app.js",
@@ -27,6 +29,7 @@ const APP_FILES = [
   "./js/modules/debts.js",
   "./js/modules/savings.js",
   "./js/modules/settings.js",
+  "./js/modules/streaming.js",
   "./icons/icon.svg",
   "./icons/icon-192.png",
   "./icons/icon-512.png",

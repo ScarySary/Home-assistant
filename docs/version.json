@@ -1,8 +1,8 @@
 {
   "app": "Household Assistant",
-  "version": "1.0.0-alpha.10",
+  "version": "1.0.0-alpha.11",
   "channel": "alpha",
-  "buildDate": "2026-06-26",
+  "buildDate": "2026-06-27",
   "minimumDataVersion": 1,
   "safeUpdate": true,
   "notes": [
@@ -18,6 +18,11 @@
     "Reduced scrolling in Debt Tracker and Savings Goals with sticky add bars and compact expandable cards.",
     "Refreshed the visual design with a cleaner banking-app inspired style.",
     "Added a top hamburger app menu and collapsible finance summary sections.",
-    "Removed the bottom navigation panel, added smaller text, and changed Settings into expandable phone-style sections."
+    "Removed the bottom navigation panel, added smaller text, and changed Settings into expandable phone-style sections.",
+    "Added private Supabase Auth sync controls with backup-first safety, manual Sync now, guarded auto-sync and visible sync status.",
+    "Added updatedAt conflict handling so the newest item edit wins and a conflict warning is shown.",
+    "Added Streaming Services under Money without storing passwords.",
+    "Added RLS setup instructions, a Capacitor plan and a private Android beta checklist.",
+    "Improved dark-mode contrast for the dashboard greeting."
   ]
 }

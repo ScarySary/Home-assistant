@@ -3,12 +3,14 @@ import { createStore, hasHouseholdData, saveData } from "./core/store.js";
 import { clearSession, createPasswordRecord, currentUser, setSession, verifyPassword } from "./core/auth.js";
 import { el, inputField } from "./core/dom.js";
 import { icon } from "./core/icons.js";
+import { syncHouseholdSnapshot, syncStatus } from "./core/sync.js";
 import { listenForAppUpdate } from "./core/updates.js";
 import { renderDashboard } from "./modules/dashboard.js";
 import { renderDebts } from "./modules/debts.js";
 import { renderFood, renderMoney, renderTasks } from "./modules/hubs.js";
 import { renderSavings } from "./modules/savings.js";
 import { renderSettings } from "./modules/settings.js";
+import { renderStreaming } from "./modules/streaming.js";
 
 const store = createStore();
 const root = document.querySelector("#app");
@@ -19,8 +21,12 @@ const routes = {
   food: renderFood,
   debts: renderDebts,
   savings: renderSavings,
+  streaming: renderStreaming,
   settings: renderSettings
 };
+let autoSyncTimer = null;
+let lastAutoSyncedUpdate = "";
+let autoSyncInFlight = false;
 
 const app = {
   store,
@@ -33,7 +39,10 @@ const app = {
   }
 };
 
-store.subscribe(render);
+store.subscribe((data) => {
+  render();
+  queueAutoSync(data);
+});
 window.addEventListener("hashchange", () => {
   app.route = location.hash.replace("#", "") || "dashboard";
   render();
@@ -97,7 +106,10 @@ function renderShell(data) {
             el("strong", { text: data.household.name })
           ])
         ]),
-        el("button", { type: "button", className: "secondary", onClick: toggleTheme, text: data.settings.theme === "dark" ? "Light mode" : "Dark mode" })
+        el("div", { className: "topbar-actions" }, [
+          el("span", { className: `status-pill sync-${syncStatus(data.settings).toLowerCase().replaceAll(" ", "-")}`, text: syncStatus(data.settings) }),
+          el("button", { type: "button", className: "secondary", onClick: toggleTheme, text: data.settings.theme === "dark" ? "Light mode" : "Dark mode" })
+        ])
       ]),
       el("main", { id: "mainContent", className: "content", tabindex: "-1" }, [searchPanel(data), view(app)])
     ]),
@@ -209,9 +221,16 @@ function searchItems(data) {
     route: "savings",
     iconName: "savings"
   }));
+  const streaming = (data.modules.streaming?.items || []).map((service) => ({
+    label: service.serviceName,
+    area: "Streaming Services",
+    route: "streaming",
+    iconName: "bills"
+  }));
   const builtIns = [
     ["Budget", "Money", "money", "money"],
     ["Bills", "Money", "money", "bills"],
+    ["Streaming services", "Money", "streaming", "bills"],
     ["Shopping list", "Food", "food", "shopping"],
     ["Pantry", "Food", "food", "shopping"],
     ["Fridge", "Food", "food", "shopping"],
@@ -224,7 +243,7 @@ function searchItems(data) {
     ["Accessibility", "Settings", "settings", "settings"]
   ].map(([label, area, route, iconName]) => ({ label, area, route, iconName }));
 
-  return [...debts, ...savings, ...builtIns].map((item) => ({
+  return [...debts, ...savings, ...streaming, ...builtIns].map((item) => ({
     ...item,
     search: `${item.label} ${item.area}`.toLowerCase()
   }));
@@ -333,4 +352,50 @@ function toggleTheme() {
   store.update((data) => {
     data.settings.theme = data.settings.theme === "dark" ? "light" : "dark";
   });
+}
+
+function queueAutoSync(data) {
+  const sync = data.settings.sync;
+  if (autoSyncInFlight) return;
+  if (!sync.autoSync || sync.status === "Syncing" || !sync.auth?.accessToken || !sync.householdKey) return;
+  if (!sync.backupExportedAt || !sync.lastManualSyncAt) return;
+  if (data.meta.updatedAt === lastAutoSyncedUpdate) return;
+  clearTimeout(autoSyncTimer);
+  autoSyncTimer = setTimeout(async () => {
+    const latest = store.get();
+    if (autoSyncInFlight) return;
+    if (!latest.settings.sync.autoSync || latest.settings.sync.status === "Syncing") return;
+    autoSyncInFlight = true;
+    lastAutoSyncedUpdate = latest.meta.updatedAt;
+    store.update((next) => {
+      next.settings.sync.status = "Syncing";
+      next.settings.sync.lastStatus = "Auto-syncing latest changes...";
+    });
+    try {
+      const result = await syncHouseholdSnapshot(store.get());
+      store.replace({
+        ...result.data,
+        settings: {
+          ...result.data.settings,
+          sync: {
+            ...store.get().settings.sync,
+            status: "Synced",
+            lastPushedAt: result.updatedAt,
+            lastPulledAt: result.updatedAt,
+            lastConflictWarning: result.conflictWarning,
+            lastStatus: result.conflictWarning || "Auto-sync complete."
+          }
+        }
+      });
+      lastAutoSyncedUpdate = store.get().meta.updatedAt;
+    } catch (error) {
+      store.update((next) => {
+        next.settings.sync.status = "Sync error";
+        next.settings.sync.lastError = error.message;
+        next.settings.sync.lastStatus = error.message;
+      });
+    } finally {
+      autoSyncInFlight = false;
+    }
+  }, 4500);
 }

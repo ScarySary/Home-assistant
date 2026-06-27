@@ -1,176 +1,182 @@
-# Supabase Sync Setup
+# Supabase Private Sync Setup
 
-This alpha uses Supabase as a small shared cloud storage place for one household.
+This alpha uses Supabase Auth plus Row Level Security so each signed-in person can only read and update rows for their own household.
 
-GitHub Pages hosts the app. Supabase stores the shared household data.
+Use only:
 
-## What You Need
+- Supabase Project URL, for example `https://your-project.supabase.co`
+- Supabase publishable key, or legacy anon public key
 
-- A Supabase account
-- One Supabase project
-- Your project URL
-- Your publishable key, or the legacy anon public key
-- One shared household key
-- One shared sync password
+Never put a `service_role`, secret key, real passwords, private debt data or private household data into GitHub Pages code.
 
-The sync password is sent to Supabase over HTTPS and checked by a database function. The app does not upload the sync password inside the household backup payload.
+## Step 1: Create The Tables And Policies
 
-## Step 1: Create A Supabase Project
-
-1. Go to `https://supabase.com`
-2. Create an account or sign in
-3. Create a new project
-4. Choose a strong database password
-5. Wait for the project to finish setting up
-
-## Step 2: Add The Sync Database
-
-1. Open your Supabase project
-2. Go to **SQL Editor**
-3. Create a new query
-4. Paste this SQL
-5. Click **Run**
+Open Supabase, then go to **SQL Editor** and run this script.
 
 ```sql
-create extension if not exists pgcrypto with schema extensions;
+create extension if not exists pgcrypto;
 
-create table if not exists public.household_sync (
-  household_key text primary key,
-  sync_secret_hash text not null,
-  payload jsonb not null,
+create table if not exists public.households (
+  id uuid primary key default gen_random_uuid(),
+  name text not null,
+  created_by uuid not null references auth.users(id) on delete cascade,
+  created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
 
-alter table public.household_sync enable row level security;
+create table if not exists public.household_members (
+  household_id uuid not null references public.households(id) on delete cascade,
+  user_id uuid not null references auth.users(id) on delete cascade,
+  role text not null check (role in ('Administrator', 'Adult', 'Teen', 'Child')),
+  created_at timestamptz not null default now(),
+  primary key (household_id, user_id)
+);
 
-revoke all on public.household_sync from anon;
-revoke all on public.household_sync from authenticated;
+create table if not exists public.household_snapshots (
+  household_id uuid primary key references public.households(id) on delete cascade,
+  payload jsonb not null default '{}'::jsonb,
+  updated_at timestamptz not null default now(),
+  updated_by uuid references auth.users(id)
+);
 
-create or replace function public.push_household(
-  p_household_key text,
-  p_sync_secret text,
-  p_payload jsonb
-)
+alter table public.households enable row level security;
+alter table public.household_members enable row level security;
+alter table public.household_snapshots enable row level security;
+
+create or replace function public.is_household_member(p_household_id uuid)
+returns boolean
+language sql
+security definer
+set search_path = public
+as $$
+  select exists (
+    select 1
+    from public.household_members
+    where household_id = p_household_id
+      and user_id = auth.uid()
+  );
+$$;
+
+create or replace function public.create_household(p_name text)
 returns jsonb
 language plpgsql
 security definer
 set search_path = public
 as $$
 declare
-  existing public.household_sync;
-  new_hash text;
+  v_household_id uuid;
 begin
-  if length(trim(p_household_key)) < 8 then
-    raise exception 'Household key must be at least 8 characters.';
+  if auth.uid() is null then
+    raise exception 'Sign in first.';
   end if;
 
-  if length(p_sync_secret) < 10 then
-    raise exception 'Sync password must be at least 10 characters.';
-  end if;
+  insert into public.households (name, created_by)
+  values (coalesce(nullif(trim(p_name), ''), 'Our Household'), auth.uid())
+  returning id into v_household_id;
 
-  select * into existing
-  from public.household_sync
-  where household_key = p_household_key;
+  insert into public.household_members (household_id, user_id, role)
+  values (v_household_id, auth.uid(), 'Administrator');
 
-  if existing.household_key is null then
-    new_hash := extensions.crypt(p_sync_secret, extensions.gen_salt('bf'));
-    insert into public.household_sync (household_key, sync_secret_hash, payload, updated_at)
-    values (p_household_key, new_hash, p_payload, now());
-  else
-    if extensions.crypt(p_sync_secret, existing.sync_secret_hash) <> existing.sync_secret_hash then
-      raise exception 'Sync password did not match this household.';
-    end if;
+  insert into public.household_snapshots (household_id, payload, updated_by)
+  values (v_household_id, '{}'::jsonb, auth.uid());
 
-    update public.household_sync
-    set payload = p_payload,
-        updated_at = now()
-    where household_key = p_household_key;
-  end if;
-
-  return jsonb_build_object(
-    'message', 'Cloud household updated.',
-    'updated_at', now()
-  );
+  return jsonb_build_object('household_id', v_household_id, 'role', 'Administrator');
 end;
 $$;
 
-create or replace function public.pull_household(
-  p_household_key text,
-  p_sync_secret text
+drop policy if exists "households select own" on public.households;
+create policy "households select own"
+on public.households for select
+using (public.is_household_member(id));
+
+drop policy if exists "households update admins" on public.households;
+create policy "households update admins"
+on public.households for update
+using (
+  exists (
+    select 1 from public.household_members
+    where household_id = households.id
+      and user_id = auth.uid()
+      and role in ('Administrator', 'Adult')
+  )
+);
+
+drop policy if exists "members select own household" on public.household_members;
+create policy "members select own household"
+on public.household_members for select
+using (public.is_household_member(household_id));
+
+drop policy if exists "members manage admins" on public.household_members;
+create policy "members manage admins"
+on public.household_members for all
+using (
+  exists (
+    select 1 from public.household_members owner
+    where owner.household_id = household_members.household_id
+      and owner.user_id = auth.uid()
+      and owner.role = 'Administrator'
+  )
 )
-returns jsonb
-language plpgsql
-security definer
-set search_path = public
-as $$
-declare
-  existing public.household_sync;
-begin
-  select * into existing
-  from public.household_sync
-  where household_key = p_household_key;
+with check (
+  exists (
+    select 1 from public.household_members owner
+    where owner.household_id = household_members.household_id
+      and owner.user_id = auth.uid()
+      and owner.role = 'Administrator'
+  )
+);
 
-  if existing.household_key is null then
-    raise exception 'No household found for that key.';
-  end if;
+drop policy if exists "snapshots select own household" on public.household_snapshots;
+create policy "snapshots select own household"
+on public.household_snapshots for select
+using (public.is_household_member(household_id));
 
-  if extensions.crypt(p_sync_secret, existing.sync_secret_hash) <> existing.sync_secret_hash then
-    raise exception 'Sync password did not match this household.';
-  end if;
+drop policy if exists "snapshots upsert own household" on public.household_snapshots;
+create policy "snapshots upsert own household"
+on public.household_snapshots for all
+using (public.is_household_member(household_id))
+with check (public.is_household_member(household_id));
 
-  return jsonb_build_object(
-    'payload', existing.payload,
-    'updated_at', existing.updated_at
-  );
-end;
-$$;
-
-grant execute on function public.push_household(text, text, jsonb) to anon;
-grant execute on function public.pull_household(text, text) to anon;
+grant execute on function public.create_household(text) to authenticated;
+grant execute on function public.is_household_member(uuid) to authenticated;
 ```
 
-## Step 3: Get Your Supabase Details
+## Step 2: App Setup
 
-1. In Supabase, go to **Project Settings**
-2. Go to **API**
-3. Copy the **Project URL**
-4. Copy the **publishable** key. It usually starts with `sb_publishable_`.
+1. Open the app.
+2. Go to **Settings**.
+3. Open **Sync**.
+4. Paste the Supabase Project URL.
+5. Paste the publishable or anon key.
+6. Tap **Save sync settings**.
+7. Tap **Export backup first**.
+8. Sign in or create a Supabase Auth account.
+9. Tap **Create cloud household** on Sara's phone.
+10. On Zac's phone, sign in with his own Supabase Auth account.
+11. Add Zac to `household_members` in Supabase with the same `household_id`, or later use the app invite flow when it is built.
+12. Zac taps **Join existing household**.
+13. Tap **Sync now**.
 
-## Step 4: Connect The First Phone
+## Adding Zac Manually During Alpha
 
-1. Open Household Assistant
-2. Go to **Settings**
-3. Find **Sync between phones**
-4. Paste the Supabase URL
-5. Paste the publishable key
-6. Enter a household key, for example `sara-household-2026`
-7. Enter a shared sync password with at least 10 characters
-8. Tap **Save sync settings**
-9. Tap **Push this phone**
+Until the invite screen is built, add the second user in Supabase SQL Editor:
 
-## Step 5: Connect Your Husband's Phone
+```sql
+insert into public.household_members (household_id, user_id, role)
+values ('PASTE_HOUSEHOLD_ID_HERE', 'PASTE_ZAC_AUTH_USER_ID_HERE', 'Adult')
+on conflict (household_id, user_id) do update set role = excluded.role;
+```
 
-1. Open the installed app on his phone
-2. Go to **Settings**
-3. Enter the same Supabase URL
-4. Enter the same publishable key
-5. Enter the same household key
-6. Enter the same sync password
-7. Tap **Save sync settings**
-8. Tap **Pull cloud copy**
+You can find Zac's Auth user ID in **Authentication > Users**.
 
-## How To Use Sync In This Alpha
+## Sync Safety
 
-This is manual sync:
+- The app keeps local browser backup/import.
+- First sync is manual.
+- Auto-sync unlocks only after a backup, sign-in and one successful manual sync.
+- If two devices edit the same item, the newest `updatedAt` timestamp wins and the app shows a conflict warning.
+- Exported backup files remove cloud access tokens and old shared sync passwords.
 
-- After changing data on your phone, tap **Push this phone**
-- On the other phone, tap **Pull cloud copy**
+## Private Android Beta Notes
 
-Automatic live sync can be added later once this manual version is tested and stable.
-
-## Safety Notes
-
-- Export a backup before pulling a cloud copy onto a phone with important data.
-- Use a strong sync password.
-- Do not post your publishable key and household key publicly together with your sync password.
-- GitHub Pages still only hosts app files. Household data sync happens through Supabase.
+This PWA is ready for private phone testing once GitHub Pages is updated and Supabase RLS is installed. A future APK/Google Play build should wrap the same app with Capacitor without changing the data model.
