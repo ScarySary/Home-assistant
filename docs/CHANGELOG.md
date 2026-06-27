@@ -1,5 +1,14 @@
 # Household Assistant Changelog
 
+## 1.0.0-alpha.13 - 2026-06-27
+
+- Added automatic local restore points before manual sync, pull and auto-sync.
+- Added a clearer restore-from-backup flow in Settings.
+- Added a sync banner to every main screen with Offline, Syncing, Synced and Error states.
+- Added last synced information outside the Sync settings panel.
+- Added a beta hardening test plan for household privacy, sync, backup and Android accessibility.
+- Kept the pass focused on privacy, sync and backup stability rather than new modules.
+
 ## 1.0.0-alpha.12 - 2026-06-27
 
 - Added clearer everyday sync messages for two-phone use.

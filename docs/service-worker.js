@@ -1,4 +1,4 @@
-const APP_CACHE = "household-assistant-shell-v23";
+const APP_CACHE = "household-assistant-shell-v24";
 const APP_FILES = [
   "./",
   "./index.html",
@@ -11,10 +11,12 @@ const APP_FILES = [
   "./SUPABASE_SYNC_SETUP.md",
   "./PRIVATE_BETA_CHECKLIST.md",
   "./CAPACITOR_PLAN.md",
+  "./BETA_HARDENING_TEST_PLAN.md",
   "./README.md",
   "./.nojekyll",
   "./js/app.js",
   "./js/core/auth.js",
+  "./js/core/backup.js",
   "./js/core/constants.js",
   "./js/core/dom.js",
   "./js/core/format.js",

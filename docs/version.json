@@ -1,6 +1,6 @@
 {
   "app": "Household Assistant",
-  "version": "1.0.0-alpha.12",
+  "version": "1.0.0-alpha.13",
   "channel": "alpha",
   "buildDate": "2026-06-27",
   "minimumDataVersion": 1,
@@ -26,6 +26,10 @@
     "Improved dark-mode contrast for the dashboard greeting.",
     "Polished sync messages for everyday two-phone use.",
     "Added last synced time, this device name, connected members and a setup checklist.",
-    "Added a button to clear resolved conflict warnings after checking both phones."
+    "Added a button to clear resolved conflict warnings after checking both phones.",
+    "Added automatic local restore points before sync changes.",
+    "Added a clearer restore-from-backup flow in Settings.",
+    "Added a sync status banner with last synced information on every main screen.",
+    "Added a beta hardening test plan for privacy, sync, backup and Android accessibility."
   ]
 }

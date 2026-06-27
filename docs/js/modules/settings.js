@@ -1,4 +1,5 @@
 import { APP_BUILD_DATE, APP_RELEASE_CHANNEL, APP_VERSION, roles } from "../core/constants.js";
+import { clearLocalBackups, createLocalBackup, findLocalBackup, localBackups } from "../core/backup.js";
 import { canManageUsers, createPasswordRecord, normaliseRole } from "../core/auth.js";
 import { el, inputField } from "../core/dom.js";
 import { notificationSupport, requestReminderPermission, showTestNotification } from "../core/notifications.js";
@@ -97,6 +98,7 @@ function syncPanel(app, data) {
       next.settings.sync.lastStatus = "Syncing...";
     });
     try {
+      createLocalBackup(app.store.get(), "Before Sync now");
       const result = await pushHouseholdToCloud(app.store.get());
       app.store.replace({
         ...result.data,
@@ -268,6 +270,7 @@ function syncPanel(app, data) {
           saveSettings();
           status.textContent = "Pulling the cloud copy safely...";
           try {
+            createLocalBackup(app.store.get(), "Before pulling cloud copy");
             const currentSync = app.store.get().settings.sync;
             const cloudData = await pullHouseholdFromCloud(app.store.get().settings);
             app.store.replace({
@@ -536,14 +539,45 @@ function accountPanel(app, data, user) {
 }
 
 function backupPanel(app, data, fileInput) {
+  const backups = localBackups();
+  const latest = backups[0];
+  const restoreStatus = el("p", { className: "inline-status", role: "status", text: latest ? `${backups.length} local restore point${backups.length === 1 ? "" : "s"} saved on this device.` : "No local restore points yet." });
   return el("section", { className: "panel" }, [
     el("h2", { text: "Backup, export and import" }),
-    el("p", { text: "Backups contain household data only. Cloud access tokens and old sync passwords are removed from exported backup files." }),
+    el("p", { text: "The app now saves a local restore point before sync changes. Exported backup files still remove cloud access tokens and old sync passwords." }),
     el("div", { className: "action-row" }, [
       el("button", { type: "button", onClick: () => exportBackup(data, app), text: "Export data backup" }),
       el("label", { className: "file-button", for: "backupImport", text: "Import backup" }),
-      fileInput
-    ])
+      fileInput,
+      el("button", {
+        type: "button",
+        className: "secondary",
+        disabled: latest ? null : "disabled",
+        onClick: () => restoreLocalBackup(app, latest?.id),
+        text: "Restore latest local backup"
+      }),
+      el("button", {
+        type: "button",
+        className: "secondary",
+        disabled: backups.length ? null : "disabled",
+        onClick: () => {
+          if (!confirm("Clear local restore points on this device? Export a backup first if you want to keep one.")) return;
+          clearLocalBackups();
+          app.store.update((next) => (next.settings.sync.lastStatus = "Local restore points cleared."));
+        },
+        text: "Clear restore points"
+      })
+    ]),
+    latest ? el("div", { className: "backup-list" }, backups.slice(0, 5).map((backup) =>
+      el("article", { className: "backup-row" }, [
+        el("div", {}, [
+          el("strong", { text: backup.reason }),
+          el("span", { text: new Date(backup.createdAt).toLocaleString("en-AU") })
+        ]),
+        el("button", { type: "button", className: "secondary compact", onClick: () => restoreLocalBackup(app, backup.id), text: "Restore" })
+      ])
+    )) : el("div", { className: "empty-state", text: "Local restore points will appear here after your next sync." }),
+    restoreStatus
   ]);
 }
 
@@ -622,6 +656,7 @@ function select(value, options, onChange) {
 
 function exportBackup(data, app = null) {
   const exportedAt = new Date().toISOString();
+  createLocalBackup(data, "Manual export backup");
   const backup = {
     ...data,
     settings: {
@@ -643,6 +678,28 @@ function exportBackup(data, app = null) {
       next.settings.sync.lastStatus = "Backup exported. You can now continue sync setup.";
     });
   }
+}
+
+function restoreLocalBackup(app, backupId) {
+  if (!backupId) return;
+  const backup = findLocalBackup(backupId);
+  if (!backup) {
+    alert("That local backup could not be found on this device.");
+    return;
+  }
+  if (!confirm(`Restore the local backup from ${new Date(backup.createdAt).toLocaleString("en-AU")}? This will replace the current data on this device.`)) return;
+  createLocalBackup(app.store.get(), "Before local backup restore");
+  app.store.replace({
+    ...backup.data,
+    settings: {
+      ...backup.data.settings,
+      sync: {
+        ...app.store.get().settings.sync,
+        lastStatus: "Local backup restored. Press Sync now if this should update the other phone.",
+        status: syncConfigured(app.store.get().settings) ? "Synced" : "Local only"
+      }
+    }
+  });
 }
 
 function importBackup(app, file) {

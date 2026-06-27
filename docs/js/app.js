@@ -1,4 +1,5 @@
 import { APP_VERSION, moduleCatalog, roles } from "./core/constants.js";
+import { createLocalBackup } from "./core/backup.js";
 import { createStore, hasHouseholdData, saveData } from "./core/store.js";
 import { clearSession, createPasswordRecord, currentUser, setSession, verifyPassword } from "./core/auth.js";
 import { el, inputField } from "./core/dom.js";
@@ -85,6 +86,7 @@ function render() {
 
 function renderShell(data) {
   const view = routes[app.route] || routes.dashboard;
+  const syncText = syncStatus(data.settings);
   return el("div", { className: "app-layout" }, [
     el("aside", { className: "sidebar", "aria-label": "Main navigation" }, [
       el("div", { className: "brand-block" }, [
@@ -107,14 +109,33 @@ function renderShell(data) {
           ])
         ]),
         el("div", { className: "topbar-actions" }, [
-          el("span", { className: `status-pill sync-${syncStatus(data.settings).toLowerCase().replaceAll(" ", "-")}`, text: syncStatus(data.settings) }),
+          el("span", { className: `status-pill sync-${syncText.toLowerCase().replaceAll(" ", "-")}`, text: syncText }),
           el("button", { type: "button", className: "secondary", onClick: toggleTheme, text: data.settings.theme === "dark" ? "Light mode" : "Dark mode" })
         ])
       ]),
-      el("main", { id: "mainContent", className: "content", tabindex: "-1" }, [searchPanel(data), view(app)])
+      el("main", { id: "mainContent", className: "content", tabindex: "-1" }, [syncBanner(data), searchPanel(data), view(app)])
     ]),
     floatingActions()
   ]); 
+}
+
+function syncBanner(data) {
+  const status = syncStatus(data.settings);
+  const sync = data.settings.sync;
+  const lastSynced = sync.lastManualSyncAt || sync.lastPulledAt || sync.lastPushedAt;
+  const message = status === "Syncing"
+    ? "Syncing changes between phones..."
+    : status === "Offline"
+      ? "Offline. Changes stay on this phone until internet returns."
+      : status === "Sync error"
+        ? friendlySyncMessage(sync.lastStatus || sync.lastError || "Sync needs attention.")
+        : lastSynced
+          ? `Last synced ${new Date(lastSynced).toLocaleString("en-AU")}`
+          : "Local only until sync is set up.";
+  return el("section", { className: `sync-banner sync-${status.toLowerCase().replaceAll(" ", "-")}`, role: "status", "aria-live": "polite" }, [
+    el("strong", { text: status }),
+    el("span", { text: message })
+  ]);
 }
 
 function appMenu(data) {
@@ -372,6 +393,7 @@ function queueAutoSync(data) {
       next.settings.sync.lastStatus = "Auto-syncing latest changes...";
     });
     try {
+      createLocalBackup(store.get(), "Before auto-sync");
       const result = await syncHouseholdSnapshot(store.get());
       store.replace({
         ...result.data,

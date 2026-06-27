@@ -36,4 +36,6 @@ Follow [GITHUB_PAGES_DEPLOY.md](GITHUB_PAGES_DEPLOY.md) to publish this app to G
 
 Follow [SUPABASE_SYNC_SETUP.md](SUPABASE_SYNC_SETUP.md) to set up shared household sync between phones.
 
+Use [BETA_HARDENING_TEST_PLAN.md](BETA_HARDENING_TEST_PLAN.md) to test privacy, sync, backup and Android accessibility before adding new modules.
+
 Use [PRIVATE_BETA_CHECKLIST.md](PRIVATE_BETA_CHECKLIST.md) before inviting testers, and [CAPACITOR_PLAN.md](CAPACITOR_PLAN.md) when preparing a future private Android beta wrapper.
