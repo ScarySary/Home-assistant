@@ -1,4 +1,4 @@
-const APP_CACHE = "household-assistant-shell-v24";
+const APP_CACHE = "household-assistant-shell-v25";
 const APP_FILES = [
   "./",
   "./index.html",
@@ -28,6 +28,7 @@ const APP_FILES = [
   "./js/modules/calculations.js",
   "./js/modules/dashboard.js",
   "./js/modules/hubs.js",
+  "./js/modules/household.js",
   "./js/modules/debts.js",
   "./js/modules/savings.js",
   "./js/modules/settings.js",

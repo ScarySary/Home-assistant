@@ -517,13 +517,33 @@ function notificationPanel(app, data) {
 }
 
 function preferences(app, data) {
+  const user = app.user;
+  const personal = user ? data.settings.userPreferences?.[user.id] : null;
+  const current = {
+    theme: personal?.theme || data.settings.theme,
+    textScale: personal?.textScale || data.settings.textScale,
+    highContrast: personal?.highContrast ?? data.settings.highContrast
+  };
+  const updatePreference = (key, value) => app.store.update((next) => {
+    if (!user) {
+      next.settings[key] = value;
+      return;
+    }
+    next.settings.userPreferences[user.id] = {
+      theme: next.settings.userPreferences[user.id]?.theme || next.settings.theme,
+      textScale: next.settings.userPreferences[user.id]?.textScale || next.settings.textScale,
+      highContrast: next.settings.userPreferences[user.id]?.highContrast ?? next.settings.highContrast,
+      [key]: value
+    };
+  });
   return el("section", { className: "panel" }, [
+    el("p", { text: "Accessibility settings are saved for the signed-in person, so each household member can choose their own text size, theme and contrast." }),
     el("div", { className: "field-grid" }, [
-      inputField("Theme", select(data.settings.theme, ["light", "dark"], (value) => app.store.update((next) => (next.settings.theme = value)))),
-      inputField("Text size", select(data.settings.textScale, ["small", "comfortable", "large", "extra-large"], (value) => app.store.update((next) => (next.settings.textScale = value))))
+      inputField("Theme", select(current.theme, ["light", "dark"], (value) => updatePreference("theme", value))),
+      inputField("Text size", select(current.textScale, ["small", "comfortable", "large", "extra-large"], (value) => updatePreference("textScale", value)))
     ]),
     el("label", { className: "toggle-row" }, [
-      el("input", { type: "checkbox", checked: data.settings.highContrast ? "checked" : null, onChange: (event) => app.store.update((next) => (next.settings.highContrast = event.target.checked)) }),
+      el("input", { type: "checkbox", checked: current.highContrast ? "checked" : null, onChange: (event) => updatePreference("highContrast", event.target.checked) }),
       el("span", { text: "Use stronger contrast throughout the app" })
     ])
   ]);

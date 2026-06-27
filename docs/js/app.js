@@ -8,6 +8,7 @@ import { friendlySyncMessage, syncHouseholdSnapshot, syncStatus } from "./core/s
 import { listenForAppUpdate } from "./core/updates.js";
 import { renderDashboard } from "./modules/dashboard.js";
 import { renderDebts } from "./modules/debts.js";
+import { renderAnalytics, renderAssistant, renderCalendar } from "./modules/household.js";
 import { renderFood, renderMoney, renderTasks } from "./modules/hubs.js";
 import { renderSavings } from "./modules/savings.js";
 import { renderSettings } from "./modules/settings.js";
@@ -23,6 +24,9 @@ const routes = {
   debts: renderDebts,
   savings: renderSavings,
   streaming: renderStreaming,
+  calendar: renderCalendar,
+  analytics: renderAnalytics,
+  assistant: renderAssistant,
   settings: renderSettings
 };
 let autoSyncTimer = null;
@@ -66,9 +70,10 @@ render();
 function render() {
   const data = store.get();
   app.user = currentUser(data);
-  document.body.dataset.theme = data.settings.theme;
-  document.body.dataset.contrast = data.settings.highContrast ? "high" : "standard";
-  document.body.dataset.scale = data.settings.textScale;
+  const preferences = userPreferences(data, app.user);
+  document.body.dataset.theme = preferences.theme;
+  document.body.dataset.contrast = preferences.highContrast ? "high" : "standard";
+  document.body.dataset.scale = preferences.textScale;
 
   root.innerHTML = "";
   if (!hasHouseholdData() || !data.users.length) {
@@ -87,6 +92,7 @@ function render() {
 function renderShell(data) {
   const view = routes[app.route] || routes.dashboard;
   const syncText = syncStatus(data.settings);
+  const preferences = userPreferences(data, app.user);
   return el("div", { className: "app-layout" }, [
     el("aside", { className: "sidebar", "aria-label": "Main navigation" }, [
       el("div", { className: "brand-block" }, [
@@ -110,13 +116,22 @@ function renderShell(data) {
         ]),
         el("div", { className: "topbar-actions" }, [
           el("span", { className: `status-pill sync-${syncText.toLowerCase().replaceAll(" ", "-")}`, text: syncText }),
-          el("button", { type: "button", className: "secondary", onClick: toggleTheme, text: data.settings.theme === "dark" ? "Light mode" : "Dark mode" })
+          el("button", { type: "button", className: "secondary", onClick: toggleTheme, text: preferences.theme === "dark" ? "Light mode" : "Dark mode" })
         ])
       ]),
       el("main", { id: "mainContent", className: "content", tabindex: "-1" }, [syncBanner(data), searchPanel(data), view(app)])
     ]),
     floatingActions()
   ]); 
+}
+
+function userPreferences(data, user) {
+  const personal = user ? data.settings.userPreferences?.[user.id] : null;
+  return {
+    theme: personal?.theme || data.settings.theme,
+    highContrast: personal?.highContrast ?? data.settings.highContrast,
+    textScale: personal?.textScale || data.settings.textScale
+  };
 }
 
 function syncBanner(data) {
@@ -168,6 +183,7 @@ function menuButton(module) {
     "aria-current": active ? "page" : null,
     onClick: enabled ? () => app.navigate(module.id) : null
   }, [
+    icon(module.icon || module.id),
     el("span", { text: module.name }),
     el("small", { text: module.status === "active" ? "Ready" : "Planned" })
   ]);
@@ -183,6 +199,7 @@ function navButton(module) {
     "aria-current": active ? "page" : null,
     onClick: enabled ? () => app.navigate(module.id) : null
   }, [
+    icon(module.icon || module.id),
     el("span", { text: module.name }),
     el("small", { text: module.status === "active" ? "Ready" : `Phase ${module.phase}` })
   ]);
@@ -252,6 +269,9 @@ function searchItems(data) {
     ["Budget", "Money", "money", "money"],
     ["Bills", "Money", "money", "bills"],
     ["Streaming services", "Money", "streaming", "bills"],
+    ["Calendar", "Calendar", "calendar", "calendar"],
+    ["Analytics", "Analytics", "analytics", "analytics"],
+    ["Household Assistant", "Assistant", "assistant", "assistant"],
     ["Shopping list", "Food", "food", "shopping"],
     ["Pantry", "Food", "food", "shopping"],
     ["Fridge", "Food", "food", "shopping"],
@@ -371,7 +391,17 @@ function authPanel(title, copy, children) {
 
 function toggleTheme() {
   store.update((data) => {
-    data.settings.theme = data.settings.theme === "dark" ? "light" : "dark";
+    const user = app.user;
+    if (!user) {
+      data.settings.theme = data.settings.theme === "dark" ? "light" : "dark";
+      return;
+    }
+    const current = data.settings.userPreferences[user.id]?.theme || data.settings.theme;
+    data.settings.userPreferences[user.id] = {
+      theme: current === "dark" ? "light" : "dark",
+      highContrast: data.settings.userPreferences[user.id]?.highContrast ?? data.settings.highContrast,
+      textScale: data.settings.userPreferences[user.id]?.textScale || data.settings.textScale
+    };
   });
 }
 

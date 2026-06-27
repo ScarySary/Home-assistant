@@ -93,8 +93,16 @@ body {
   .hub-card,
   .panel,
   .tracker-card,
-  .module-placeholder-card {
+  .module-placeholder-card,
+  .timeline-row,
+  .insight-card {
     animation: md-enter 180ms ease both;
+  }
+
+  .settings-section[open] .panel,
+  details[open] .card-details,
+  details[open] .history-list {
+    animation: md-enter 150ms ease both;
   }
 
   .fab-menu[open] .fab-actions {
@@ -124,6 +132,17 @@ body {
       opacity: 1;
       transform: translateY(0) scale(1);
     }
+  }
+
+  .progress-fill[style*="100%"],
+  .bar-fill[style*="100%"] {
+    animation: success-pulse 720ms ease both;
+  }
+
+  @keyframes success-pulse {
+    0% { filter: brightness(1); }
+    45% { filter: brightness(1.25); }
+    100% { filter: brightness(1); }
   }
 }
 
@@ -459,9 +478,10 @@ body[data-theme="dark"] .fab-button {
 
 .nav-button {
   width: 100%;
-  justify-content: space-between;
-  display: flex;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
   align-items: center;
+  gap: 0.65rem;
   text-align: left;
   background: transparent;
   color: #ffffff;
@@ -583,9 +603,10 @@ body[data-theme="dark"] .fab-button {
 
 .app-menu-item {
   width: 100%;
-  justify-content: space-between;
-  display: flex;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
   align-items: center;
+  gap: 0.65rem;
   border-color: var(--border);
   background: var(--surface);
   color: var(--text);
@@ -690,6 +711,23 @@ body[data-theme="dark"] .fab-button {
   color: var(--muted);
   font-weight: 800;
   text-align: right;
+}
+
+.sync-banner.sync-synced {
+  border-color: color-mix(in srgb, var(--success) 36%, var(--border));
+  background: color-mix(in srgb, var(--success) 10%, var(--surface));
+}
+
+.sync-banner.sync-syncing {
+  border-color: color-mix(in srgb, var(--gold) 42%, var(--border));
+  background: color-mix(in srgb, var(--gold) 12%, var(--surface));
+}
+
+.sync-banner.sync-error,
+.sync-banner.sync-sync-error,
+.sync-banner.sync-offline {
+  border-color: color-mix(in srgb, var(--danger) 38%, var(--border));
+  background: color-mix(in srgb, var(--danger) 10%, var(--surface));
 }
 
 .hero-panel,
@@ -837,6 +875,13 @@ body[data-theme="dark"] .hero-copy {
   gap: 0.85rem;
 }
 
+.dashboard-summary-grid,
+.analytics-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+
 .glance-strip {
   grid-column: 1 / -1;
   display: grid;
@@ -886,6 +931,76 @@ body[data-theme="dark"] .hero-copy {
   align-content: start;
   min-height: 136px;
   padding: 1rem;
+}
+
+.dashboard-feature-card {
+  grid-row: span 2;
+}
+
+.icon-title {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  min-width: 0;
+}
+
+.icon-title h2 {
+  margin: 0;
+}
+
+.mini-list,
+.timeline-list,
+.insight-list {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.mini-line,
+.timeline-row,
+.insight-card {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.85rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+}
+
+.mini-line,
+.insight-card {
+  grid-template-columns: auto minmax(0, 1fr);
+}
+
+.mini-line {
+  padding: 0.65rem;
+  background: var(--surface-soft);
+}
+
+.mini-line div,
+.timeline-row div,
+.insight-card div {
+  display: grid;
+  gap: 0.15rem;
+}
+
+.mini-line span:not(.summary-icon),
+.timeline-row span:not(.summary-icon):not(.status-pill),
+.insight-card p {
+  margin: 0;
+  color: var(--muted);
+  font-weight: 800;
+}
+
+.insight-card.good {
+  border-color: color-mix(in srgb, var(--success) 38%, var(--border));
+  background: color-mix(in srgb, var(--success) 9%, var(--surface));
+}
+
+.insight-card.attention {
+  border-color: color-mix(in srgb, var(--gold) 42%, var(--border));
+  background: color-mix(in srgb, var(--gold) 11%, var(--surface));
 }
 
 .home-card:active,
@@ -945,6 +1060,14 @@ body[data-theme="dark"] .hero-copy {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 1rem;
+}
+
+.compact-module-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.mini-placeholder {
+  min-height: 180px;
 }
 
 .hub-card {
@@ -1799,6 +1922,48 @@ summary {
   font-weight: 800;
 }
 
+.empty-panel {
+  display: grid;
+  gap: 0.65rem;
+  justify-items: start;
+}
+
+.chart-card {
+  display: grid;
+  gap: 1rem;
+}
+
+.bar-chart {
+  display: grid;
+  gap: 0.8rem;
+}
+
+.bar-row {
+  display: grid;
+  grid-template-columns: minmax(7rem, 1fr) minmax(0, 2fr) auto;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.bar-row span,
+.bar-row strong {
+  font-weight: 900;
+}
+
+.bar-track {
+  height: 14px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: var(--surface-soft);
+  border: 1px solid var(--border);
+}
+
+.bar-fill {
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, var(--accent), var(--success));
+}
+
 .toggle-row {
   justify-content: flex-start;
   margin-top: 1rem;
@@ -1973,8 +2138,11 @@ summary {
   .nav-list,
   .metric-grid,
   .dashboard-summary,
+  .dashboard-summary-grid,
+  .analytics-grid,
   .home-card-grid,
   .hub-card-grid,
+  .compact-module-grid,
   .settings-grid,
   .sync-overview-grid,
   .quick-action-grid,
@@ -1985,6 +2153,12 @@ summary {
   .roadmap-list,
   .field-grid {
     grid-template-columns: 1fr;
+  }
+
+  .timeline-row,
+  .bar-row {
+    grid-template-columns: 1fr;
+    align-items: stretch;
   }
 
   .section-head button,

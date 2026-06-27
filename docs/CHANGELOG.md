@@ -1,5 +1,19 @@
 # Household Assistant Changelog
 
+## 1.0.0-alpha.14 - 2026-06-27
+
+- Rebuilt the Home Dashboard into a richer household overview.
+- Added cards for money, subscriptions, household activity, shopping/pantry placeholders and sync/backup status.
+- Added Calendar, Analytics and Household Assistant beta pages.
+- Added generated calendar items for repayments, savings milestones, subscription renewals and backup reminders.
+- Added analytics progress visuals for debt, savings, subscriptions and backup readiness.
+- Added household insights such as upcoming renewals, backup status, debt progress and sync status.
+- Improved Streaming Services with monthly/yearly totals and renewal countdowns.
+- Added icons more consistently across navigation, cards and placeholders.
+- Added per-user accessibility preferences for theme, contrast and text size.
+- Added subtle reduced-motion-safe animations and completion pulses.
+- Kept Supabase sync, authentication, backup and restore systems intact.
+
 ## 1.0.0-alpha.13 - 2026-06-27
 
 - Added automatic local restore points before manual sync, pull and auto-sync.

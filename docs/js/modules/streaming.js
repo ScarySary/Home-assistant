@@ -17,6 +17,12 @@ export function renderStreaming(app) {
       el("strong", { text: "Do not store passwords here." }),
       el("span", { text: "Use a password manager for actual passwords. This tab is only for service details, costs and login usernames." })
     ]),
+    el("section", { className: "metric-grid", "aria-label": "Streaming summary" }, [
+      metric("Monthly total", currency.format(total)),
+      metric("Yearly total", currency.format(total * 12)),
+      metric("Services", String(items.length)),
+      metric("Next renewal", nextRenewalText(items))
+    ]),
     el("section", { className: "finance-action-bar", "aria-label": "Streaming actions" }, [
       el("div", {}, [
         el("strong", { text: `${items.length} ${items.length === 1 ? "service" : "services"}` }),
@@ -33,7 +39,7 @@ function streamingCard(app, item) {
     el("div", { className: "card-topline compact-card-topline" }, [
       el("div", { className: "compact-card-title" }, [
         el("strong", { text: item.serviceName }),
-        el("span", { text: `${currency.format(item.monthlyCost)} monthly - renews ${formatDate(item.renewalDate)}` })
+        el("span", { text: `${currency.format(item.monthlyCost)} monthly - ${renewalCountdown(item.renewalDate)}` })
       ]),
       el("button", { type: "button", className: "danger-icon", "aria-label": `Remove ${item.serviceName}`, onClick: () => removeStreaming(app, item.id), text: "X" })
     ]),
@@ -65,6 +71,26 @@ function streamingCard(app, item) {
       item.link ? el("a", { href: item.link, target: "_blank", rel: "noopener", text: "Open service" }) : el("span", { text: "No link saved" })
     ])
   ]);
+}
+
+function metric(label, value) {
+  return el("article", { className: "metric-card" }, [el("span", { text: label }), el("strong", { text: value })]);
+}
+
+function nextRenewalText(items) {
+  const next = items.filter((item) => item.renewalDate).slice().sort((a, b) => a.renewalDate.localeCompare(b.renewalDate))[0];
+  return next ? `${next.serviceName} ${renewalCountdown(next.renewalDate).toLowerCase()}` : "None";
+}
+
+function renewalCountdown(date) {
+  if (!date) return "renewal date not set";
+  const today = new Date(`${todayIso()}T00:00:00`);
+  const target = new Date(`${date}T00:00:00`);
+  const days = Math.ceil((target - today) / 86400000);
+  if (days < 0) return `renewed ${Math.abs(days)} day${Math.abs(days) === 1 ? "" : "s"} ago`;
+  if (days === 0) return "renews today";
+  if (days === 1) return "renews tomorrow";
+  return `renews in ${days} days`;
 }
 
 function addStreaming(app) {

@@ -75,6 +75,7 @@ export function createDefaultData() {
       theme: "light",
       highContrast: true,
       textScale: "comfortable",
+      userPreferences: {},
       dashboard: defaultDashboardSettings(),
       updates: {
         installableAppReady: true,
@@ -154,6 +155,7 @@ function normalizeSettings(baseSettings, rawSettings) {
   return {
     ...baseSettings,
     ...rawSettings,
+    userPreferences: rawSettings.userPreferences || {},
     dashboard: normalizeDashboardSettings(rawSettings.dashboard, baseSettings.dashboard),
     updates: { ...baseSettings.updates, ...(rawSettings.updates || {}) },
     notifications: { ...baseSettings.notifications, ...(rawSettings.notifications || {}) },

@@ -28,3 +28,15 @@ Use this before inviting real testers.
 - Use a real app icon, privacy policy and tester-only Play track.
 - Test update installs without clearing household data.
 - Test Android notification permissions on physical phones.
+
+## Remaining Before Google Play Beta
+
+- Finish invite flow so Sara can add Zac from inside the app instead of Supabase Table Editor.
+- Add a privacy policy covering Supabase Auth, household data, backups and notifications.
+- Add a visible data deletion/export explanation for beta testers.
+- Test install/update on at least two Android versions.
+- Test offline edits followed by sync recovery.
+- Test restore from local backup after a bad sync.
+- Confirm no service_role key or private data is present in packaged app files.
+- Confirm accessibility with large text, high contrast and reduced motion.
+- Decide whether the beta remains PWA-only or moves to a Capacitor wrapper.

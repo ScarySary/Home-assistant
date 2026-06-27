@@ -1,6 +1,6 @@
 {
   "app": "Household Assistant",
-  "version": "1.0.0-alpha.13",
+  "version": "1.0.0-alpha.14",
   "channel": "alpha",
   "buildDate": "2026-06-27",
   "minimumDataVersion": 1,
@@ -30,6 +30,10 @@
     "Added automatic local restore points before sync changes.",
     "Added a clearer restore-from-backup flow in Settings.",
     "Added a sync status banner with last synced information on every main screen.",
-    "Added a beta hardening test plan for privacy, sync, backup and Android accessibility."
+    "Added a beta hardening test plan for privacy, sync, backup and Android accessibility.",
+    "Added a richer household dashboard with money, subscriptions, household, shopping and sync summaries.",
+    "Added Calendar, Analytics and Household Assistant beta pages using existing household data.",
+    "Improved Android polish with consistent cards, icons, motion, empty states and progress visuals.",
+    "Changed accessibility settings so each signed-in household member can keep their own theme, contrast and text size."
   ]
 }
